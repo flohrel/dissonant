@@ -1,0 +1,94 @@
+{
+  "name": "Node.js/TS",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace",
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "remoteUser": "node",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  // "initializeCommand": "",
+  // "postCreateCommand": "",
+  "postStartCommand": "pnpm install",
+  // "postAttachCommand": "",
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // This can be used to network with other containers or with the host.
+  // "forwardPorts": [
+  // 	5432
+  // ],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // "prisma.prisma",
+        "ms-vsliveshare.vsliveshare",
+        "oderwat.indent-rainbow",
+        "aaron-bond.better-comments",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "rvest.vs-code-prettier-eslint",
+        "bradlc.vscode-tailwindcss",
+        "christian-kohler.path-intellisense",
+        "christian-kohler.npm-intellisense",
+        "visualstudioexptteam.vscodeintellicode",
+        "eamodio.gitlens", // IDE Git information
+        "davidanson.vscode-markdownlint", // Mardown linter
+        "ms-azuretools.vscode-docker", // Docker integration and linting
+        "Gruntfuggly.todo-tree", // Highlights TODO comments
+        "bierner.emojisense", // Emoji sense for markdown
+        "github.vscode-pull-request-github" // Github interaction
+      ],
+      "settings": {
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "explicit",
+          "source.organizeImports": "explicit",
+          "source.addMissingImports": "explicit"
+        },
+        "editor.accessibilitySupport": "off",
+        "editor.detectIndentation": true,
+        "editor.formatOnSave": true,
+        "editor.indentSize": "tabSize",
+        "editor.linkedEditing": true,
+        "editor.minimap.enabled": false,
+        "editor.rulers": [
+          80,
+          120
+        ],
+        "editor.tabSize": 2,
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 80,
+        "files.eol": "\n",
+        "git.autofetch": true,
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
+        "editor.quickSuggestions": {
+          "strings": "on"
+        },
+        "html.suggest.html5": true,
+        "html.format.enable": false,
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "remote.extensionKind": {
+          "ms-azuretools.vscode-docker": "workspace"
+        },
+        "tailwindCSS.emmetCompletions": true,
+        "eslint.validate": [
+          "javascript",
+          "typescript"
+        ],
+        "[javascript][javascriptreact][typescript][typescriptreact][jsonc]": {
+          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+        },
+        "[dockerfile]": {
+          "editor.tabSize": 4,
+          "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  }
+}

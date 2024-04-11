@@ -1,0 +1,56 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "onde"
+		},
+		{
+			"path": "./client",
+			"name": "client"
+		},
+		{
+			"path": "./server",
+			"name": "server"
+		},
+	],
+	"extensions": {
+		"recommendations": [
+			"dbaeumer.vscode-eslint",
+			"esbenp.prettier-vscode",
+			"rvest.vs-code-prettier-eslint",
+			"bradlc.vscode-tailwindcss",
+		],
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [],
+		"compounds": []
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"type": "shell",
+				"command": "docker logs -f server",
+				"label": "backend-log",
+				"runOptions": {
+					"runOn": "folderOpen",
+					"instanceLimit": 1,
+				},
+				"group": "none",
+				"presentation": {
+					"echo": true,
+					"reveal": "silent",
+					"focus": false,
+					"panel": "dedicated",
+					"showReuseMessage": false,
+					"clear": false,
+					"group": "watch"
+				},
+				"icon": {
+					"id": "output"
+				}
+			}
+		]
+	},
+}
