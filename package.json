@@ -5,6 +5,10 @@
   "keywords": [],
   "author": "morizur",
   "license": "LGPL-3.0-only",
+  "private": true,
+  "workspaces": [
+    "server"
+  ],
   "scripts": {
     "prepare": "test -d node_modules/husky && husky install || echo \"Husky is not installed\""
   },
@@ -33,5 +37,11 @@
     "extends": [
       "@commitlint/config-conventional"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "undici@<=5.28.2": ">=5.28.3",
+      "undici@<5.28.4": ">=5.28.4"
+    }
   }
 }

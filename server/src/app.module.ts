@@ -5,6 +5,9 @@ import { IntentsBitField } from 'discord.js';
 import * as Joi from 'joi';
 import { NecordModule } from 'necord';
 import { AppUpdate } from './app.update';
+import { PlayerModule } from './src/player/player/player.module';
+import { PlayerModule } from './player/player/player.module';
+import { PlayerModule } from './player/player.module';
 
 @Module({
   imports: [
@@ -34,6 +37,7 @@ import { AppUpdate } from './app.update';
         IntentsBitField.Flags.DirectMessages,
       ],
     }),
+    PlayerModule,
   ],
   providers: [AppUpdate, AppCommands],
 })

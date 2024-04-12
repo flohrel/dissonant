@@ -28,8 +28,8 @@
         "ms-vsliveshare.vsliveshare",
         "oderwat.indent-rainbow",
         "aaron-bond.better-comments",
-        "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
         "rvest.vs-code-prettier-eslint",
         "bradlc.vscode-tailwindcss",
         "christian-kohler.path-intellisense",
@@ -80,14 +80,24 @@
           "javascript",
           "typescript"
         ],
-        "[javascript][javascriptreact][typescript][typescriptreact][jsonc]": {
+        "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc]": {
           "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
         },
         "[dockerfile]": {
           "editor.tabSize": 4,
           "editor.defaultFormatter": "ms-azuretools.vscode-docker"
         },
-        "terminal.integrated.defaultProfile.linux": "zsh"
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "npm.packageManager": "pnpm",
+        "search.exclude": {
+          "pnpm-lock.yaml": true
+        },
+        "explorer.fileNesting.enabled": true,
+        "explorer.fileNesting.expand": true,
+        "explorer.fileNesting.patterns": {
+          "tsconfig.json": "tsconfig.*.json",
+          "package.json": "package-lock.json, pnpm-lock.yaml, pnpm-workspace.yaml"
+        }
       }
     }
   }

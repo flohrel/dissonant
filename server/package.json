@@ -33,8 +33,10 @@
     "joi": "^17.12.3",
     "libsodium-wrappers": "^0.7.13",
     "necord": "^6.8.3",
-    "reflect-metadata": "^0.1.14",
-    "rxjs": "^7.8.1"
+    "play-dl": "^1.9.7",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "youtube-sr": "^4.3.11"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.3.2",
