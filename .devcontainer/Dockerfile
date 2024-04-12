@@ -9,9 +9,8 @@ RUN corepack prepare pnpm@latest --activate
 RUN pnpm add -g pnpm
 RUN pnpm add -g jest
 
-RUN sudo apt-get update && sudo apt-get install gnupg2 -y
-
-# COPY ~/.ssh /home/node/.ssh
-# COPY ~/.gnupg /home/node/.gnupg
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	gnupg2 \
+	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace

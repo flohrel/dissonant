@@ -5,6 +5,9 @@
   "keywords": [],
   "author": "morizur",
   "license": "LGPL-3.0-only",
+  "scripts": {
+    "prepare": "test -d node_modules/husky && husky install || echo \"Husky is not installed\""
+  },
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",
     "@commitlint/config-conventional": "^18.6.3",
