@@ -1,13 +1,13 @@
-import { AppCommands } from '@/app.command';
+import { PlayerModule } from '@/player/player.module';
+import { SearchModule } from '@/search/search.module';
+import { SearchService } from '@/search/search.service';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { IntentsBitField } from 'discord.js';
 import * as Joi from 'joi';
 import { NecordModule } from 'necord';
+import { AppCommands } from './app.command';
 import { AppUpdate } from './app.update';
-import { PlayerModule } from './src/player/player/player.module';
-import { PlayerModule } from './player/player/player.module';
-import { PlayerModule } from './player/player.module';
 
 @Module({
   imports: [
@@ -38,7 +38,8 @@ import { PlayerModule } from './player/player.module';
       ],
     }),
     PlayerModule,
+    SearchModule,
   ],
-  providers: [AppUpdate, AppCommands],
+  providers: [AppUpdate, AppCommands, SearchService],
 })
 export class AppModule {}
