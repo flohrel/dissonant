@@ -51,6 +51,10 @@
           "source.organizeImports": "always",
           "source.addMissingImports": "always"
         },
+        "editor.formatOnSaveMode": "file",
+        "files.autoSave": "onFocusChange",
+        "vs-code-prettier-eslint.prettierLast": false,
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
         "editor.accessibilitySupport": "off",
         "editor.detectIndentation": true,
         "editor.formatOnPaste": false,

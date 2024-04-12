@@ -1,6 +1,5 @@
 import { PlayerModule } from '@/player/player.module';
 import { SearchModule } from '@/search/search.module';
-import { SearchService } from '@/search/search.service';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { IntentsBitField } from 'discord.js';
@@ -40,6 +39,6 @@ import { AppUpdate } from './app.update';
     PlayerModule,
     SearchModule,
   ],
-  providers: [AppUpdate, AppCommands, SearchService],
+  providers: [AppUpdate, AppCommands],
 })
 export class AppModule {}

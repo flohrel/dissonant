@@ -4,13 +4,16 @@ import { streamUrlRegex, urlRegex } from './types/url.types';
 
 @Injectable()
 export class SearchService {
-  public isUrl(url: string): { isUrl: boolean; type?: keyof typeof urlRegex } {
+  public isUrl(url: string): {
+    isUrl: boolean;
+    type?: keyof typeof streamUrlRegex;
+  } {
     if (!url.match(urlRegex)) {
       return { isUrl: false };
     } else {
       for (const [key, regex] of Object.entries(streamUrlRegex)) {
         if (url.match(regex)) {
-          return { isUrl: true, type: key as keyof typeof urlRegex };
+          return { isUrl: true, type: key as keyof typeof streamUrlRegex };
         }
       }
       return { isUrl: true };

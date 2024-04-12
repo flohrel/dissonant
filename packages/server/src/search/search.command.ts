@@ -14,12 +14,14 @@ export class SearchCommands {
     @Options() { text }: QueryDto,
   ): Promise<InteractionResponse<boolean>> {
     const { isUrl, type } = this.searchService.isUrl(text);
-    if (!isUrl)
+    if (!isUrl) {
       return interaction.reply({
         content: await this.searchService.searchYoutube(text),
       });
-    else if (type === undefined)
+    } else if (type === undefined) {
       return interaction.reply({ content: 'Unknown URL type' });
-    else return interaction.reply({ content: type.toString() });
+    } else {
+      return interaction.reply({ content: type.toString() });
+    }
   }
 }
