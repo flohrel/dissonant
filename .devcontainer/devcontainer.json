@@ -9,8 +9,8 @@
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
   // "initializeCommand": "",
-  // "postCreateCommand": "",
-  "postStartCommand": "pnpm install",
+  "postCreateCommand": ["pnpm", "install"],
+  "postStartCommand": ["sudo", "chown", "node", "node_modules"],
   // "postAttachCommand": "",
   // Features to add to the dev container. More info: https://containers.dev/features.
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -24,40 +24,43 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        // "prisma.prisma",
-        "ms-vsliveshare.vsliveshare",
-        "oderwat.indent-rainbow",
-        "aaron-bond.better-comments",
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
-        "rvest.vs-code-prettier-eslint",
-        "bradlc.vscode-tailwindcss",
-        "christian-kohler.path-intellisense",
-        "christian-kohler.npm-intellisense",
-        "visualstudioexptteam.vscodeintellicode",
-        "eamodio.gitlens", // IDE Git information
+        // "crystal-spider.jsdoc-generator", // JSDoc generator
+        // "prisma.prisma", // Prisma helper
+        "ms-vsliveshare.vsliveshare", // Realtime collaborative coding
+        "oderwat.indent-rainbow", // Colorized indents
+        "aaron-bond.better-comments", // Comments improvements
+        "esbenp.prettier-vscode", // Prettier
+        "dbaeumer.vscode-eslint", // ESLint
+        "rvest.vs-code-prettier-eslint", // Prettier + ESLint
+        "bradlc.vscode-tailwindcss", // TailwindCSS helper
+        "christian-kohler.path-intellisense", // path autocomplete
+        "christian-kohler.npm-intellisense", // npm module autocomplete
+        "visualstudioexptteam.vscodeintellicode", // VSCode AI assistant
         "davidanson.vscode-markdownlint", // Mardown linter
         "ms-azuretools.vscode-docker", // Docker integration and linting
         "Gruntfuggly.todo-tree", // Highlights TODO comments
         "bierner.emojisense", // Emoji sense for markdown
-        "github.vscode-pull-request-github" // Github interaction
+        "github.vscode-pull-request-github", // Github interaction
+        "github.vscode-github-actions", // Github Actions helper
+        "github.copilot", // Github AI assistant
+        "mhutchie.git-graph" // Git graph view
       ],
       "settings": {
         "editor.codeActionsOnSave": {
-          "source.fixAll": "explicit",
-          "source.organizeImports": "explicit",
-          "source.addMissingImports": "explicit"
+          "source.fixAll": "always",
+          "source.organizeImports": "always",
+          "source.addMissingImports": "always"
         },
         "editor.accessibilitySupport": "off",
         "editor.detectIndentation": true,
+        "editor.formatOnPaste": false,
+        "editor.formatOnType": false,
         "editor.formatOnSave": true,
         "editor.indentSize": "tabSize",
         "editor.linkedEditing": true,
         "editor.minimap.enabled": false,
-        "editor.rulers": [
-          80,
-          120
-        ],
+        "editor.renderWhitespace": "trailing",
+        "editor.rulers": [80, 120],
         "editor.tabSize": 2,
         "editor.wordWrap": "wordWrapColumn",
         "editor.wordWrapColumn": 80,
@@ -71,21 +74,19 @@
         },
         "html.suggest.html5": true,
         "html.format.enable": false,
-        "typescript.updateImportsOnFileMove.enabled": "always",
         "remote.extensionKind": {
           "ms-azuretools.vscode-docker": "workspace"
         },
         "tailwindCSS.emmetCompletions": true,
-        "eslint.validate": [
-          "javascript",
-          "typescript"
-        ],
-        "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc]": {
-          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
-        },
-        "[dockerfile]": {
-          "editor.tabSize": 4,
+        "eslint.validate": ["javascript", "typescript"],
+        "[dockerfile][dockercompose]": {
           "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+        },
+        "[json][jsonc]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascript][typescript]": {
+          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
         },
         "terminal.integrated.defaultProfile.linux": "zsh",
         "npm.packageManager": "pnpm",
@@ -97,7 +98,13 @@
         "explorer.fileNesting.patterns": {
           "tsconfig.json": "tsconfig.*.json",
           "package.json": "package-lock.json, pnpm-lock.yaml, pnpm-workspace.yaml"
-        }
+        },
+        "typescript.preferences.importModuleSpecifier": "project-relative",
+        "typescript.preferences.importModuleSpecifierEnding": "minimal",
+        "typescript.preferences.includePackageJsonAutoImports": "on",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "task.allowAutomaticTasks": "on",
+        "terminal.integrated.persistentSessionReviveProcess": "onExitAndWindowClose"
       }
     }
   }

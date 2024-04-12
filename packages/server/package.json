@@ -1,7 +1,10 @@
 {
-  "name": "jack-abbott",
+  "name": "onde-server",
   "version": "0.0.1",
   "description": "",
+  "keywords": [],
+  "author": "morizur",
+  "license": "LGPL-3.0-only",
   "main": "./dist/index.js",
   "exports": "./dist/index.js",
   "scripts": {
@@ -18,9 +21,6 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
-  "keywords": [],
-  "author": "morizur",
-  "license": "LGPL-3.0-only",
   "dependencies": {
     "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.16.1",
@@ -28,10 +28,12 @@
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.3.7",
     "@nestjs/platform-express": "^10.3.7",
+    "@types/lodash": "^4.17.0",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "joi": "^17.12.3",
     "libsodium-wrappers": "^0.7.13",
+    "lodash": "^4.17.21",
     "necord": "^6.8.3",
     "play-dl": "^1.9.7",
     "reflect-metadata": "^0.2.2",

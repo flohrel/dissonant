@@ -8,6 +8,7 @@ services:
 
     volumes:
       - workspace:/workspace:rw
+      - node_modules:/workspace/node_modules:z
       # SSH directory
       - ~/.ssh:/home/node/.ssh
       # GPG directory
@@ -21,7 +22,7 @@ services:
         source: ~/.gitconfig
         target: /home/node/.gitconfig
       # Overrides default command so things don't shut down after the process ends.
-    command: sleep infinity
+    command: [ "sleep", "infinity" ]
     # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
     # network_mode: service:db
 
@@ -34,13 +35,17 @@ services:
   server:
     container_name: server
     build:
-      context: ../server
-      target: dev
+      context: ..
+      target: server-dev
 
     volumes:
-      - ${PWD}/server:/app:rw
+      - ${PWD}/packages/server:/app/dev/server:rw
+      - node_modules:/app/node_modules:z
 
     restart: unless-stopped
+
+    depends_on:
+      - workspace
     # db:
     #   image: postgres:latest
     #   restart: unless-stopped
@@ -71,3 +76,9 @@ volumes:
       type: none
       o: bind
       device: ${PWD}
+  node_modules:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/node_modules

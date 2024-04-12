@@ -2,14 +2,14 @@
 	"folders": [
 		{
 			"path": ".",
-			"name": "onde"
+			"name": "/"
 		},
 		{
-			"path": "./client",
+			"path": "./packages/client",
 			"name": "client"
 		},
 		{
-			"path": "./server",
+			"path": "./packages/server",
 			"name": "server"
 		},
 	],

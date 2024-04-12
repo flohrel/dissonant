@@ -6,7 +6,9 @@ import { Context, Options, SlashCommand, SlashCommandContext } from 'necord';
 @Injectable()
 export class AppCommands {
   @SlashCommand({ name: 'ping', description: 'Ping-Pong Command' })
-  public async onPing(@Context() [interaction]: SlashCommandContext): Promise<InteractionResponse<boolean>> {
+  public async onPing(
+    @Context() [interaction]: SlashCommandContext,
+  ): Promise<InteractionResponse<boolean>> {
     return interaction.reply({
       content: `Pong! guild: ${interaction.guildId}`,
     });
