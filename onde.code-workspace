@@ -1,48 +1,16 @@
 {
-	"folders": [
-		{
-			"path": ".",
-			"name": "/"
-		},
-		{
-			"path": "./packages/client",
-			"name": "client"
-		},
-		{
-			"path": "./packages/server",
-			"name": "server"
-		},
-	],
-	"launch": {
-		"version": "0.2.0",
-		"configurations": [],
-		"compounds": []
-	},
-	"tasks": {
-		"version": "2.0.0",
-		"tasks": [
-			{
-				"type": "shell",
-				"command": "docker logs -f server",
-				"label": "backend-log",
-				"runOptions": {
-					"runOn": "folderOpen",
-					"instanceLimit": 1,
-				},
-				"group": "none",
-				"presentation": {
-					"echo": true,
-					"reveal": "silent",
-					"focus": false,
-					"panel": "dedicated",
-					"showReuseMessage": false,
-					"clear": false,
-					"group": "watch"
-				},
-				"icon": {
-					"id": "output"
-				}
-			}
-		]
-	},
+  "folders": [
+    {
+      "path": ".",
+      "name": "/",
+    },
+    {
+      "path": "./packages/client",
+      "name": "client",
+    },
+    {
+      "path": "./packages/server",
+      "name": "server",
+    },
+  ],
 }

@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "docker-compose",
+      "label": "docker-compose-up",
+      "runOptions": {
+        "runOn": "folderOpen",
+        "instanceLimit": 1
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false,
+        "close": true
+      },
+      "icon": {
+        "id": "extensions"
+      },
+      "dockerCompose": {
+        "up": {
+          "detached": true,
+          "build": true,
+          "services": ["server"]
+        },
+        "files": ["${workspaceFolder}/docker-compose.yml"]
+      }
+    },
+    {
+      "type": "shell",
+      "dependsOn": "docker-compose-up",
+      "command": "docker logs -f server",
+      "label": "backend-log",
+      "runOptions": {
+        "runOn": "folderOpen",
+        "instanceLimit": 1
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "group": "watch"
+      },
+      "icon": {
+        "id": "output"
+      }
+    }
+  ]
+}
