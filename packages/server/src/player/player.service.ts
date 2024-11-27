@@ -2,14 +2,18 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { EmbedBuilder } from 'discord.js';
 import { createWriteStream } from 'fs';
-import { queryMetadata } from '../search/search.service';
+import { VideoMetadataResult } from 'yt-search';
+import { queryMetadata, SearchService } from '../search/search.service';
 import { ChannelQueue } from './types/channel-queue.type';
 import { UserPayload } from './types/user-payload.type';
 import Vibrant = require('node-vibrant');
 
 @Injectable()
 export class PlayerService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly searchService: SearchService,
+  ) {}
   private readonly queue: Map<string, ChannelQueue> = new Map();
 
   public async downloadImage(url?: string): Promise<string> {
@@ -65,7 +69,7 @@ export class PlayerService {
     });
   }
 
-  public async getEmbed(
+  public async setEmbed(
     userPayload: UserPayload,
     metadata: queryMetadata,
   ): Promise<EmbedBuilder> {
@@ -76,23 +80,54 @@ export class PlayerService {
       .then((color) => {
         return new EmbedBuilder()
           .setColor(color)
-          .setTitle(
-            (metadata.video?.title || metadata.playlist?.title) ?? 'Unknown',
-          )
           .setAuthor({
-            name: metadata.video?.author?.name || 'Unknown',
+            name: 'NOW PLAYING',
           })
-          .setURL(metadata.video?.url || metadata.playlist?.url || null)
+          .setTitle(
+            '▶ ' +
+              ((metadata.video?.title || metadata.playlist?.title) ??
+                'Unknown'),
+          )
           .setImage(metadata.video?.image || metadata.playlist?.image || null)
-          .setTimestamp()
-          .setFooter({
-            text: userPayload.displayName,
-            iconURL: userPayload?.avatar,
-          });
+          .setURL(metadata.video?.url || metadata.playlist?.url || null);
+        // .setTimestamp()
+        // .setFooter({
+        //   text: userPayload.displayName,
+        //   iconURL: userPayload?.avatar,
+        // });
       })
       .catch((err) => {
         Logger.error(`Error creating embed: ${err}`, 'PlayerService');
         return new EmbedBuilder();
       });
+  }
+
+  public async addTracksToQueue(
+    userPayload: UserPayload,
+    tracksMetadata: VideoMetadataResult[],
+  ): Promise<void> {
+    if (this.queue.has(userPayload.guildId) === false) {
+      this.queue.set(userPayload.guildId, {
+        tracks: [],
+      });
+    }
+    const queue = this.queue.get(userPayload.guildId);
+    if (!queue) {
+      return;
+    }
+    tracksMetadata.forEach((track) => {
+      Logger.debug(`Track added: ${track.title}`, 'PlayerService');
+      queue.tracks.push({
+        id: track.videoId,
+        videoId: track.videoId,
+        title: track.title,
+        url: track.url,
+        thumbnail: track.image,
+        duration: track.duration,
+        authorUrl: track.author.url,
+        authorName: track.author.name,
+        requestedBy: userPayload,
+      });
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   PlaylistMetadataResult,
   VideoMetadataResult,
@@ -49,6 +49,15 @@ export class SearchService {
     };
   }
 
+  public async getPlaylist(query: string): Promise<PlaylistMetadataResult> {
+    return yts({ listId: query });
+  }
+
+  public async getVideo(query: string): Promise<VideoMetadataResult> {
+    Logger.debug(`Searching for video: ${query}`, 'SearchService');
+    return yts({ videoId: query });
+  }
+
   public async search(query: string): Promise<queryMetadata> {
     let video = undefined;
     let playlist = undefined;
@@ -61,10 +70,10 @@ export class SearchService {
       const urlData = this.getVideoId(query);
       if (urlData) {
         if (urlData.playlistId) {
-          playlist = yts({ listId: urlData.playlistId });
+          playlist = this.getPlaylist(urlData.playlistId);
         }
         if (urlData.videoId) {
-          video = yts({ videoId: urlData.videoId });
+          video = this.getVideo(urlData.videoId);
         }
       }
     }
