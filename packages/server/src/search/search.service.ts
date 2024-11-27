@@ -1,31 +1,73 @@
 import { Injectable } from '@nestjs/common';
-import { YouTube } from 'youtube-sr';
-import { streamUrlRegex, urlRegex } from './types/url.types';
+import {
+  PlaylistMetadataResult,
+  VideoMetadataResult,
+  VideoSearchResult,
+} from 'yt-search';
+import yts = require('yt-search');
+
+export type queryMetadata = {
+  video: void | VideoMetadataResult | VideoSearchResult | undefined;
+  playlist: PlaylistMetadataResult | undefined;
+};
+
+type YtUrlData = {
+  videoId?: string;
+  playlistId?: string;
+};
+
+// const URL_REGEX =
+//   /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
+const YOUTUBE_URL_REGEX =
+  /^(https?:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$/;
+const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 
 @Injectable()
 export class SearchService {
-  public isUrl(url: string): {
-    isUrl: boolean;
-    type?: keyof typeof streamUrlRegex;
-  } {
-    if (!url.match(urlRegex)) {
-      return { isUrl: false };
-    } else {
-      for (const [key, regex] of Object.entries(streamUrlRegex)) {
-        if (url.match(regex)) {
-          return { isUrl: true, type: key as keyof typeof streamUrlRegex };
-        }
-      }
-      return { isUrl: true };
+  private getVideoId(url: string): YtUrlData | undefined {
+    const location = new URL(url);
+    const params = new URLSearchParams(location.search);
+
+    if (VIDEO_ID_REGEX.test(location.pathname.slice(1))) {
+      return {
+        videoId: location.pathname.slice(1),
+        playlistId: params.get('list') || undefined,
+      };
     }
+    const [type, shortId] = location.pathname.slice(1).split('/');
+    if (type === 'shorts') {
+      return {
+        videoId: shortId,
+        playlistId: undefined,
+      };
+    }
+    const videoId = params.get('v');
+    const playlistId = params.get('list');
+    return {
+      videoId: videoId || undefined,
+      playlistId: playlistId || undefined,
+    };
   }
 
-  public async searchYoutube(query: string): Promise<string> {
-    try {
-      const videos = await YouTube.search(query, { type: 'video', limit: 5 });
-      return videos.map((m, i) => `[${++i}] ${m.title} (${m.url})`).join('\n');
-    } catch (error) {
-      return `An error occurred while searching: ${error.message}`;
+  public async search(query: string): Promise<queryMetadata> {
+    let video = undefined;
+    let playlist = undefined;
+
+    if (!query.match(YOUTUBE_URL_REGEX)) {
+      video = yts(query)
+        .then((res) => res.videos[0])
+        .catch(console.error);
+    } else {
+      const urlData = this.getVideoId(query);
+      if (urlData) {
+        if (urlData.playlistId) {
+          playlist = yts({ listId: urlData.playlistId });
+        }
+        if (urlData.videoId) {
+          video = yts({ videoId: urlData.videoId });
+        }
+      }
     }
+    return { video: await video, playlist: await playlist };
   }
 }
