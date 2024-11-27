@@ -1,15 +1,48 @@
+name: onde
+
+configs:
+  lavalink_config:
+    file: ./lavalink/application.yml
+
 services:
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4-alpine
+    container_name: lavalink
+    configs:
+      - source: lavalink_config
+        target: /opt/Lavalink/application.yml
+        uid: "322"
+        gid: "322"
+    profiles:
+      - default
+    restart: unless-stopped
+    environment:
+      - _JAVA_OPTIONS=-Xmx6G
+    volumes:
+      - ./lavalink/plugins:/opt/Lavalink/plugins
+    networks:
+      - lavalink
+    expose:
+      - 2333
+    # ports:
+      # you only need this if you want to make your lavalink accessible from outside of containers
+      # - "2333:2333"
+
   server:
     container_name: server
+    profiles:
+      - default
+    restart: unless-stopped
     build:
       context: packages/server
-      target: server-dev
-
-    volumes:
-      - ${PWD}/packages/server:/app/dev/server:rw
-      - node_modules:/app/node_modules:z
-
-    restart: unless-stopped
+      target: prod
+    secrets:
+      - source: discord_bot_token
+        mode: 0440
+      - source: discord_dev_guild_id
+        mode: 0440
+    networks:
+      - lavalink
 
     # db:
     #   image: postgres:latest
@@ -34,10 +67,13 @@ services:
     # volumes:
     #   postgres-data:
 
-volumes:
-  node_modules:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/node_modules
+secrets:
+  discord_bot_token:
+    environment: DISCORD_BOT_TOKEN
+  discord_dev_guild_id:
+    environment: DISCORD_DEV_GUILD_ID
+
+networks:
+  # create a lavalink network you can add other containers to, to give them access to Lavalink
+  lavalink:
+    name: lavalink

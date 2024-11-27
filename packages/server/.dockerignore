@@ -1,0 +1,20 @@
+# Config & Env files
+.env*
+.eslint*
+.prettier*
+
+# Git files
+.git
+.gitignore
+
+# Docker files
+.dockerignore
+Docker*
+docker*
+
+# Test files
+test
+
+# Production files
+node_modules
+dist

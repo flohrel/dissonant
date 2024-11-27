@@ -1,0 +1,43 @@
+name: onde_dev
+
+configs:
+  lavalink_config:
+    file: ./lavalink/application.yml
+
+services:
+  lavalink:
+    extends:
+      file: docker-compose.yml
+      service: lavalink
+    container_name: lavalink_dev
+
+  server:
+    extends:
+      file: docker-compose.yml
+      service: server
+    container_name: server_dev
+    build:
+      target: dev
+    secrets:
+      - source: discord_bot_token
+        mode: 0440
+      - source: discord_dev_guild_id
+        mode: 0440
+    develop:
+      watch:
+        - path: ./packages/server/src
+          action: sync
+          target: /app/src
+    networks:
+      - lavalink
+
+secrets:
+  discord_bot_token:
+    environment: DISCORD_BOT_TOKEN
+  discord_dev_guild_id:
+    environment: DISCORD_DEV_GUILD_ID
+
+networks:
+  # create a lavalink network you can add other containers to, to give them access to Lavalink
+  lavalink:
+    name: lavalink
