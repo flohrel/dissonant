@@ -151,3 +151,4 @@ dist
 !.vscode/extensions.json
 
 tmp/
+lavalink/application.yml

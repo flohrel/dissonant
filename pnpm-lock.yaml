@@ -44,6 +44,9 @@ importers:
       '@discordjs/voice':
         specifier: ^0.18.0
         version: 0.18.0(opusscript@0.1.1)
+      '@necord/lavalink':
+        specifier: ^1.1.1
+        version: 1.1.1(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.9)(discord.js@14.16.3)(lavalink-client@2.4.1)(necord@6.8.6(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.9)(discord-api-types@0.37.109)(discord.js@14.16.3)(reflect-metadata@0.2.2)(rxjs@7.8.1))(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@nestjs/axios':
         specifier: ^3.1.2
         version: 3.1.2(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(axios@1.7.8)(rxjs@7.8.1)
@@ -74,6 +77,9 @@ importers:
       joi:
         specifier: ^17.13.3
         version: 17.13.3
+      lavalink-client:
+        specifier: ^2.4.1
+        version: 2.4.1
       libsodium-wrappers:
         specifier: ^0.7.15
         version: 0.7.15
@@ -697,6 +703,17 @@ packages:
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
     engines: {node: '>=8'}
+
+  '@necord/lavalink@1.1.1':
+    resolution: {integrity: sha512-kiGRsEwClUQ3R3ycIFzw7b1AfNp5r6vS2OY/9HqHKCPpUF9oIRMzO0B+Z1FWfNfI7Sj/C9ESmsriIYxYvMRKzA==}
+    peerDependencies:
+      '@nestjs/common': ^10.2.0
+      '@nestjs/core': ^10.2.0
+      discord.js: ^14.0.1
+      lavalink-client: ^2.4.0
+      necord: ^6.0.0
+      reflect-metadata: ^0.2.1
+      rxjs: ^7.2.0
 
   '@nestjs/axios@3.1.2':
     resolution: {integrity: sha512-pFlfi4ZQsZtTNNhvgssbxjCHUd1nMpV3sXy/xOOB2uEJhw3M8j8SFR08gjFNil2we2Har7VCsXLfCkwbMHECFQ==}
@@ -2652,6 +2669,10 @@ packages:
   kleur@3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
+
+  lavalink-client@2.4.1:
+    resolution: {integrity: sha512-wrRkbzILdjRzadAbdGM9O3bgLEabAebGci2YOUCcQoCumEjAMPz+rj7Xepa+y0oydnodyYZvBrB9ZeSdy7rzuw==}
+    engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -4759,6 +4780,16 @@ snapshots:
       call-bind: 1.0.7
 
   '@lukeed/csprng@1.1.0': {}
+
+  '@necord/lavalink@1.1.1(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.9)(discord.js@14.16.3)(lavalink-client@2.4.1)(necord@6.8.6(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.9)(discord-api-types@0.37.109)(discord.js@14.16.3)(reflect-metadata@0.2.2)(rxjs@7.8.1))(reflect-metadata@0.2.2)(rxjs@7.8.1)':
+    dependencies:
+      '@nestjs/common': 10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1)
+      '@nestjs/core': 10.4.9(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@10.4.9)(reflect-metadata@0.2.2)(rxjs@7.8.1)
+      discord.js: 14.16.3
+      lavalink-client: 2.4.1
+      necord: 6.8.6(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.9)(discord-api-types@0.37.109)(discord.js@14.16.3)(reflect-metadata@0.2.2)(rxjs@7.8.1)
+      reflect-metadata: 0.2.2
+      rxjs: 7.8.1
 
   '@nestjs/axios@3.1.2(@nestjs/common@10.4.9(reflect-metadata@0.2.2)(rxjs@7.8.1))(axios@1.7.8)(rxjs@7.8.1)':
     dependencies:
@@ -7169,6 +7200,14 @@ snapshots:
       json-buffer: 3.0.1
 
   kleur@3.0.3: {}
+
+  lavalink-client@2.4.1:
+    dependencies:
+      tslib: 2.8.1
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   leven@3.1.0: {}
 

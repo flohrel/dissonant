@@ -20,7 +20,7 @@ export class PlayerService {
     if (!url) {
       return Promise.reject('No image URL provided');
     }
-    const filename = 'tmp/' + url.split('/').pop();
+    const filename = '/tmp/' + url.split('/').pop();
 
     return new Promise((resolve, reject) => {
       this.httpService.axiosRef

@@ -25,16 +25,21 @@
         "up": {
           "detached": true,
           "build": true,
-          "services": ["server"]
+          "profiles": [
+            "dev"
+          ],
+          "customOptions": "--env-file packages/server/.env.development"
         },
-        "files": ["${workspaceFolder}/docker-compose.yml"]
+        "files": [
+          "${workspaceFolder}/docker-compose.dev.yml"
+        ]
       }
     },
     {
       "type": "shell",
       "dependsOn": "docker-compose-up",
-      "command": "docker logs -f server",
-      "label": "backend-log",
+      "command": "docker logs -f server_dev",
+      "label": "server-log",
       "runOptions": {
         "runOn": "folderOpen",
         "instanceLimit": 1
