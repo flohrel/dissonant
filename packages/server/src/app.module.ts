@@ -1,12 +1,11 @@
 import { PlayerModule } from '@/player/player.module';
-import { SearchModule } from '@/search/search.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { IntentsBitField } from 'discord.js';
 import * as Joi from 'joi';
 import { NecordModule } from 'necord';
-import { AppCommands } from './app.command';
 import { AppUpdate } from './app.update';
+// import { SpotifyApiModule } from './spotify-api/spotify-api.module';
 
 @Module({
   imports: [
@@ -20,6 +19,10 @@ import { AppUpdate } from './app.update';
           .default('development'),
         DISCORD_BOT_TOKEN: Joi.required(),
         DISCORD_DEV_GUILD_ID: Joi.required(),
+        // SPOTIFY_CLIENT_ID: Joi.required(),
+        // SPOTIFY_CLIENT_SECRET: Joi.required(),
+        // DISCOGS_CONSUMER_KEY: Joi.optional(),
+        // DISCOGS_CONSUMER_SECRET: Joi.optional(),
       }),
       validationOptions: {
         allowUnknown: true,
@@ -32,13 +35,16 @@ import { AppUpdate } from './app.update';
       intents: [
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMessages,
+        IntentsBitField.Flags.GuildVoiceStates,
         IntentsBitField.Flags.MessageContent,
         IntentsBitField.Flags.DirectMessages,
+        IntentsBitField.Flags.GuildMembers,
       ],
     }),
     PlayerModule,
-    SearchModule,
+    // SpotifyApiModule,
+    // SearchModule,
   ],
-  providers: [AppUpdate, AppCommands],
+  providers: [AppUpdate],
 })
 export class AppModule {}
