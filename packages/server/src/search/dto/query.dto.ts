@@ -6,5 +6,5 @@ export class QueryDto {
     description: 'Youtube / Spotify / SoundCloud URL or a search query',
     required: true,
   })
-  text: string;
+  query: string;
 }
