@@ -10,6 +10,10 @@ services:
       file: docker-compose.yml
       service: lavalink
     container_name: lavalink_dev
+    networks:
+      - lavalink
+    expose:
+      - 2333
 
   server:
     extends:
@@ -22,6 +26,12 @@ services:
       - source: discord_bot_token
         mode: 0440
       - source: discord_dev_guild_id
+        mode: 0440
+      - source: lavalink_host
+        mode: 0440
+      - source: lavalink_port
+        mode: 0440
+      - source: lavalink_password
         mode: 0440
     develop:
       watch:
@@ -36,6 +46,12 @@ secrets:
     environment: DISCORD_BOT_TOKEN
   discord_dev_guild_id:
     environment: DISCORD_DEV_GUILD_ID
+  lavalink_host:
+    environment: LAVALINK_HOST
+  lavalink_port:
+    environment: LAVALINK_PORT
+  lavalink_password:
+    environment: LAVALINK_PASSWORD
 
 networks:
   # create a lavalink network you can add other containers to, to give them access to Lavalink

@@ -1,3 +1,4 @@
+import { NecordLavalinkModule } from '@necord/lavalink';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { IntentsBitField } from 'discord.js';
@@ -17,6 +18,9 @@ import { PlayerModule } from './player/player.module';
           .default('development'),
         DISCORD_BOT_TOKEN: Joi.required(),
         DISCORD_DEV_GUILD_ID: Joi.required(),
+        LAVALINK_HOST: Joi.required(),
+        LAVALINK_PORT: Joi.number().required(),
+        LAVALINK_PASSWORD: Joi.required(),
       }),
       validationOptions: {
         allowUnknown: true,
@@ -33,6 +37,15 @@ import { PlayerModule } from './player/player.module';
         IntentsBitField.Flags.MessageContent,
         IntentsBitField.Flags.DirectMessages,
         IntentsBitField.Flags.GuildMembers,
+      ],
+    }),
+    NecordLavalinkModule.forRoot({
+      nodes: [
+        {
+          host: process.env.LAVALINK_HOST!,
+          port: Number(process.env.LAVALINK_PORT!),
+          authorization: process.env.LAVALINK_PASSWORD!,
+        },
       ],
     }),
     PlayerModule,
