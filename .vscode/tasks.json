@@ -16,23 +16,28 @@
         "panel": "shared",
         "showReuseMessage": false,
         "clear": false,
-        "close": true
+        "close": false
       },
       "icon": {
         "id": "extensions"
+      },
+      "options": {
+        "env": {
+          "COMPOSE_FILE": "docker-compose.dev.yml",
+        }
       },
       "dockerCompose": {
         "up": {
           "detached": true,
           "build": true,
           "profiles": [
-            "dev"
+            "default"
           ],
-          "customOptions": "--env-file packages/server/.env.development"
         },
         "files": [
           "${workspaceFolder}/docker-compose.dev.yml"
-        ]
+        ],
+        "envFile": "${workspaceFolder}/.env.development"
       }
     },
     {
