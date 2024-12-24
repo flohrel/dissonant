@@ -16,7 +16,7 @@
         "panel": "shared",
         "showReuseMessage": false,
         "clear": false,
-        "close": false
+        "close": true
       },
       "icon": {
         "id": "extensions"

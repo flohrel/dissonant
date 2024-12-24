@@ -49,7 +49,6 @@ import { PlayerModule } from './player/player.module';
       ],
     }),
     PlayerModule,
-    // SearchModule,
   ],
   providers: [AppUpdate],
 })

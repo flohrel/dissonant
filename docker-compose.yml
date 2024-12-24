@@ -19,7 +19,7 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx6G
     volumes:
-      - ./lavalink/plugins:/opt/Lavalink/plugins
+      - ./lavalink/plugins/:/opt/Lavalink/plugins/
     networks:
       - lavalink
     expose:

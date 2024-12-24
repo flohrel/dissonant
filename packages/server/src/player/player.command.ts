@@ -1,24 +1,23 @@
-import { SearchService } from '@/search/search.service';
 import { Injectable } from '@nestjs/common';
 import { GuildMember } from 'discord.js';
+import { LavalinkManager } from 'lavalink-client';
 import { Context, Options, SlashCommand, SlashCommandContext } from 'necord';
-import { PlayDto } from './dto/play.dto';
-import { PlayerService } from './player.service';
-import { UserPayload } from './types/user-payload.type';
+import { QueryDto } from './dto/query.dto';
 
 @Injectable()
 export class PlayerCommands {
-  constructor(
-    private readonly playerService: PlayerService,
-    private readonly searchService: SearchService,
-  ) {}
+  public constructor(private readonly lavalinkManager: LavalinkManager) {}
 
-  @SlashCommand({ name: 'play', description: 'Add a musick track to queue' })
+  // @UseInterceptors(SourceAutocompleteInterceptor)
+  @SlashCommand({
+    name: 'play',
+    description: 'Play a track',
+  })
   public async onPlay(
     @Context() [interaction]: SlashCommandContext,
-    @Options() { query }: PlayDto,
-  ): Promise<void> {
-    if (!interaction.guild) {
+    @Options() { query }: QueryDto,
+  ) {
+    if (!interaction.guildId) {
       await interaction.reply({
         content: 'You must be in a guild to use this command',
         ephemeral: true,
@@ -27,7 +26,7 @@ export class PlayerCommands {
     }
 
     const member: GuildMember = interaction.member as GuildMember;
-    if (!member?.voice.channel) {
+    if (!member?.voice.channelId) {
       await interaction.reply({
         content: 'You need to be in a voice channel',
         ephemeral: true,
@@ -35,49 +34,31 @@ export class PlayerCommands {
       return;
     }
 
-    const userPayload: UserPayload = {
-      id: member.id,
-      displayName: member.displayName,
-      avatar: member.user.avatarURL() || undefined,
-      guildId: interaction.guild.id,
-      guildName: interaction.guild.name,
-      guildIcon: interaction.guild.icon || undefined,
-    };
-
-    const queryMetadata = await this.searchService.search(query);
-    if (!queryMetadata.video && !queryMetadata.playlist) {
-      await interaction.reply({
-        content: 'No video/playlist found',
-        ephemeral: true,
-      });
-      return;
-    }
-
-    await interaction.deferReply();
-
-    const embed = this.playerService.setEmbed(userPayload, queryMetadata);
-
-    await interaction.editReply({
-      embeds: [await embed],
+    const player = this.lavalinkManager.createPlayer({
+      guildId: interaction.guildId,
+      voiceChannelId: member.voice.channelId,
+      textChannelId: interaction.channelId,
+      selfDeaf: true,
+      selfMute: false,
+      volume: 40,
     });
 
-    const tracksMetadata = queryMetadata.playlist
-      ? Promise.all(
-          queryMetadata.playlist.videos.map((video) =>
-            this.searchService.getVideo(video.videoId),
-          ),
-        )
-      : [await this.searchService.getVideo(queryMetadata.video!.videoId)];
+    await player.connect();
 
-    await this.playerService.addTracksToQueue(
-      userPayload,
-      await tracksMetadata,
+    const res = await player.search(
+      {
+        query,
+        source: 'youtube',
+      },
+      interaction.user.id,
     );
 
-    // await this.playerService.play();
+    await player.queue.add(res.tracks[0]);
 
-    await interaction.editReply({
-      embeds: [await embed],
+    if (!player.playing) await player.play();
+
+    return interaction.reply({
+      content: `Now playing ${res.tracks[0].info.title}`,
     });
   }
 }
