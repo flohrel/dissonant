@@ -152,3 +152,4 @@ dist
 
 tmp/
 lavalink/application.yml
+lavalink/plugins/*
