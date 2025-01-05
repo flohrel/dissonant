@@ -5,7 +5,7 @@
       "type": "docker-compose",
       "label": "docker-compose-up",
       "runOptions": {
-        "runOn": "folderOpen",
+        "runOn": "default",
         "instanceLimit": 1
       },
       "group": "none",
@@ -16,7 +16,7 @@
         "panel": "shared",
         "showReuseMessage": false,
         "clear": false,
-        "close": true
+        "close": true,
       },
       "icon": {
         "id": "extensions"
@@ -28,8 +28,9 @@
       },
       "dockerCompose": {
         "up": {
-          "detached": true,
-          "build": true,
+          "customOptions": "--watch",
+          "detached": false,
+          "build": false,
           "profiles": [
             "default"
           ],

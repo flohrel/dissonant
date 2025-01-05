@@ -4,8 +4,9 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 RUN apk add --no-cache dumb-init libc6-compat
-COPY . /app
+USER node
 WORKDIR /app
+COPY --chown=node:node . /app
 
 FROM base AS dev
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
@@ -22,6 +23,5 @@ RUN pnpm run build
 FROM base AS prod
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=prod-build /app/dist /app/dist
-USER node
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "sh", "-c", "export DISCORD_BOT_TOKEN=`cat /run/secrets/discord_bot_token` DISCORD_DEV_GUILD_ID=`cat /run/secrets/discord_dev_guild_id` ; pnpm start:prod" ]
