@@ -33,6 +33,8 @@ services:
     profiles:
       - default
     restart: unless-stopped
+    depends_on:
+      - lavalink
     build:
       context: packages/server
       target: prod

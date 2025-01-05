@@ -13,15 +13,15 @@
     "prepare": "test -d node_modules/husky && husky install || echo \"Husky is not installed\""
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.0",
+    "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
-    "@typescript-eslint/eslint-plugin": "^8.16.0",
-    "@typescript-eslint/parser": "^8.16.0",
-    "eslint": "^9.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
+    "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.10",
-    "prettier": "3.4.1",
+    "lint-staged": "^15.3.0",
+    "prettier": "3.4.2",
     "typescript": "^5.7.2"
   },
   "engines": {

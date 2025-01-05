@@ -59,14 +59,12 @@ import { PlayerModule } from './player/player.module';
       emitNewSongsOnly: true,
       playerOptions: {
         maxErrorsPerTime: {
-          threshold: 10_000,
+          threshold: 35_000,
           maxAmount: 3,
         },
         minAutoPlayMs: 10_000,
-        applyVolumeAsFilter: false,
         clientBasedPositionUpdateInterval: 50,
         defaultSearchPlatform: 'ytmsearch',
-        volumeDecrementer: 0.75,
         onDisconnect: {
           autoReconnect: true,
           destroyPlayer: false,
