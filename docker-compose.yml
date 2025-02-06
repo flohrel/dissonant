@@ -1,32 +1,23 @@
 name: onde
 
-configs:
-  lavalink_config:
-    file: ./lavalink/application.yml
-
 services:
   lavalink:
     image: ghcr.io/lavalink-devs/lavalink:4-alpine
+    build:
+      context: ./lavalink
     container_name: lavalink
-    configs:
-      - source: lavalink_config
-        target: /opt/Lavalink/application.yml
-        uid: "322"
-        gid: "322"
     profiles:
       - default
     restart: unless-stopped
     environment:
-      - _JAVA_OPTIONS=-Xmx6G
+      - _JAVA_OPTIONS=-Xmx1G
     volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - ./lavalink/plugins/:/opt/Lavalink/plugins/
     networks:
       - lavalink
     expose:
       - 2333
-    # ports:
-      # you only need this if you want to make your lavalink accessible from outside of containers
-      # - "2333:2333"
 
   server:
     container_name: server
@@ -46,29 +37,6 @@ services:
     networks:
       - lavalink
 
-    # db:
-    #   image: postgres:latest
-    #   restart: unless-stopped
-    #   volumes:
-    #     - postgres-data:/var/lib/postgresql/data
-    #   environment:
-    #     POSTGRES_USER: ${POSTGRES_USER}
-    #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    #     POSTGRES_DB: ${POSTGRES_DB}
-    #   healthcheck:
-    #     test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -h $$(hostname -i)"]
-    #     interval: 10s
-    #     timeout: 5s
-    #     retries: 5
-    #   expose:
-    #     - "5432"
-
-    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-
-    # volumes:
-    #   postgres-data:
-
 secrets:
   discord_bot_token:
     environment: DISCORD_BOT_TOKEN
@@ -76,6 +44,5 @@ secrets:
     environment: DISCORD_DEV_GUILD_ID
 
 networks:
-  # create a lavalink network you can add other containers to, to give them access to Lavalink
   lavalink:
     name: lavalink

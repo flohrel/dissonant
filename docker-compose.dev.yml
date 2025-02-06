@@ -1,24 +1,16 @@
 name: onde_dev
 
-configs:
-  lavalink_config:
-    file: ./lavalink/application.yml
-
 services:
   lavalink:
     extends:
       file: docker-compose.yml
       service: lavalink
     container_name: lavalink_dev
-    # develop:
-    #   watch:
-    #     - action: sync+restart
-    #       path: ./lavalink/application.yml
-    #       target: /opt/Lavalink/application.yml
-    networks:
-      - lavalink
-    expose:
-      - 2333
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./lavalink/application.yml
+          target: /opt/Lavalink/application.yml
 
   server:
     extends:
@@ -71,6 +63,5 @@ secrets:
     environment: LAVALINK_PASSWORD
 
 networks:
-  # create a lavalink network you can add other containers to, to give them access to Lavalink
   lavalink:
     name: lavalink
