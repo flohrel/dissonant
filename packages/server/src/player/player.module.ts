@@ -1,6 +1,6 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { PlayerCommands } from './player.command';
+import { PlayerCommands } from './player.commands';
 
 @Module({
   imports: [HttpModule],

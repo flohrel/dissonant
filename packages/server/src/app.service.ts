@@ -1,9 +1,4 @@
-import {
-  OnNodeManager,
-  NodeManagerContextOf,
-  OnLavalinkManager,
-  LavalinkManagerContextOf,
-} from '@necord/lavalink';
+import { NodeManagerContextOf, OnNodeManager } from '@necord/lavalink';
 import { Injectable, Logger } from '@nestjs/common';
 import { Context, ContextOf, On, Once } from 'necord';
 
@@ -34,12 +29,5 @@ export class AppUpdate {
   @OnNodeManager('connect')
   public onConnect(@Context() [node]: NodeManagerContextOf<'connect'>) {
     this.logger.log(`Node: ${node.options.id} Connected`);
-  }
-
-  @OnLavalinkManager('playerCreate')
-  public onPlayerCreate(
-    @Context() [player]: LavalinkManagerContextOf<'playerCreate'>,
-  ) {
-    this.logger.log(`Player created at ${player.guildId}`);
   }
 }

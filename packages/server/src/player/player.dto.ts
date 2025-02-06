@@ -1,3 +1,4 @@
+import { SearchPlatform } from 'lavalink-client/dist/types';
 import { BooleanOption, IntegerOption, StringOption } from 'necord';
 
 export class PlayDto {
@@ -7,6 +8,14 @@ export class PlayDto {
     required: true,
   })
   public readonly query!: string;
+
+  @StringOption({
+    name: 'source',
+    description: 'source of the track',
+    autocomplete: true,
+    required: false,
+  })
+  public readonly source?: SearchPlatform;
 }
 
 export class StopDto {
@@ -25,4 +34,13 @@ export class SkipDto {
     required: false,
   })
   public readonly skipTo?: number;
+}
+
+export class FttsDto {
+  @StringOption({
+    name: 'text',
+    description: 'Text to convert to speech',
+    required: true,
+  })
+  public readonly text!: string;
 }

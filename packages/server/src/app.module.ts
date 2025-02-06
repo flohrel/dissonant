@@ -4,8 +4,9 @@ import { ConfigModule } from '@nestjs/config';
 import { IntentsBitField } from 'discord.js';
 import * as Joi from 'joi';
 import { NecordModule } from 'necord';
-import { AppUpdate } from './app.update';
+import { AppUpdate } from './app.service';
 import { PlayerModule } from './player/player.module';
+import { LavalinkEvent } from './event/lavalink.service';
 
 @Module({
   imports: [
@@ -95,6 +96,6 @@ import { PlayerModule } from './player/player.module';
     }),
     PlayerModule,
   ],
-  providers: [AppUpdate],
+  providers: [AppUpdate, LavalinkEvent],
 })
 export class AppModule {}
