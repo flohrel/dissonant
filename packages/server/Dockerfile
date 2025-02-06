@@ -1,6 +1,7 @@
 FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+RUN npm i -g corepack@latest
 RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 RUN apk add --no-cache dumb-init libc6-compat
