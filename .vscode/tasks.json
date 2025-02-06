@@ -16,7 +16,7 @@
         "panel": "shared",
         "showReuseMessage": false,
         "clear": false,
-        "close": true,
+        "close": false,
       },
       "icon": {
         "id": "extensions"
@@ -43,13 +43,13 @@
     },
     {
       "type": "shell",
-      "dependsOn": "docker-compose-up",
+      // "dependsOn": "docker-compose-up",
       "command": "docker logs -f server_dev",
       "label": "server-log",
-      "runOptions": {
-        "runOn": "folderOpen",
-        "instanceLimit": 1
-      },
+      // "runOptions": {
+      //   "runOn": "folderOpen",
+      //   "instanceLimit": 1
+      // },
       "group": "none",
       "presentation": {
         "echo": true,
