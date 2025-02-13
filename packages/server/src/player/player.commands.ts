@@ -122,17 +122,17 @@ export class PlayerCommands {
     if (!player)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'No music is playing',
+        content: '⚠️ **No music is playing**',
       });
     if (!vcId)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'Join a Voice Channel',
+        content: '⚠️ **You need to be in a Voice Channel**',
       });
     if (player.voiceChannelId !== vcId)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'You need to be in my Voice Channel',
+        content: '⚠️ **You need to be in my Voice Channel**',
       });
 
     await player.stopPlaying(clearQueue ?? true, false);
@@ -156,17 +156,17 @@ export class PlayerCommands {
     if (!player)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'No music is playing',
+        content: '⚠️ **No music is playing**',
       });
     if (!vcId)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'Join a Voice Channel',
+        content: '⚠️ **Join need to be in a Voice Channel**',
       });
     if (player.voiceChannelId !== vcId)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'You need to be in my Voice Channel',
+        content: '⚠️ **You need to be in my Voice Channel**',
       });
 
     const current = player.queue.current;
@@ -201,59 +201,62 @@ export class PlayerCommands {
     if (!player)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'No music is playing',
+        content: '⚠️ `No music is playing`',
       });
     if (!vcId)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'Join a Voice Channel',
+        content: '⚠️ `You need to be in a voice channel`',
       });
     if (player.voiceChannelId !== vcId)
       return interaction.reply({
         flags: MessageFlags.Ephemeral,
-        content: 'You need to be in my Voice Channel',
+        content: '⚠️ `You need to be in my Voice Channel`',
       });
 
     const currentTrackInfo = player.queue.current?.info;
     const trackList = player.queue.tracks;
-    const embed = new EmbedBuilder();
 
+    if (trackList.length === 0)
+      return interaction.reply({
+        flags: MessageFlags.Ephemeral,
+        content: '`The queue is empty`',
+      });
+
+    const embed = new EmbedBuilder();
     embed
-      .setAuthor({
-        name: '🔊 Now playing',
-      })
-      .setTitle(
-        (currentTrackInfo?.sourceName !== 'youtube'
-          ? currentTrackInfo?.author?.toUpperCase() + ' - '
-          : '') + currentTrackInfo?.title,
-      )
-      .setURL(currentTrackInfo?.uri || null)
-      .setThumbnail(currentTrackInfo?.artworkUrl || null)
+      .setTitle('Next in queue')
       .setDescription(
-        `${format_HHMMSS(currentTrackInfo?.duration)} | requested by ${interaction.user.displayName}\n`,
+        trackList
+          .slice(0, trackList.length > 10 ? 10 : undefined)
+          .map((track, index) => {
+            const trackInfo = track.info;
+            const icon = [
+              '1️⃣',
+              '2️⃣',
+              '3️⃣',
+              '4️⃣',
+              '5️⃣',
+              '6️⃣',
+              '7️⃣',
+              '8️⃣',
+              '9️⃣',
+              '🔟',
+            ];
+            return (
+              `* ${icon[index]} [${trackInfo.title.length > 40 ? trackInfo.title.slice(0, 50) + '...' : trackInfo.title}](${trackInfo.uri})\n` +
+              quote(
+                subtext(
+                  `${format_HHMMSS(trackInfo.duration)} | requested by ${interaction.client.users.cache.get(track.userData?.id as string)?.displayName}`,
+                ),
+              )
+            );
+          })
+          .join('\n') + (trackList.length > 10 ? '\n...' : ''),
       )
       .addFields(
         trackList.length !== 0
           ? [
-              {
-                name: '\u200b\nQueue',
-                value:
-                  trackList
-                    .slice(0, trackList.length > 5 ? 5 : undefined)
-                    .map((track, _index) => {
-                      const trackInfo = track.info;
-                      return (
-                        `* [${trackInfo.title.length > 40 ? trackInfo.title.slice(0, 50) + '...' : trackInfo.title}](${trackInfo.uri})\n` +
-                        quote(
-                          subtext(
-                            `${format_HHMMSS(trackInfo.duration)} | requested by ${interaction.client.users.cache.get(track.userData?.id as string)?.displayName}`,
-                          ),
-                        )
-                      );
-                    })
-                    .join('\n') +
-                  (trackList.length > 10 ? '\n...\n\u200b' : '\n\u200b'),
-              },
               {
                 name: 'Total duration',
                 value: blockQuote(
