@@ -43,7 +43,7 @@
     },
     {
       "type": "shell",
-      // "dependsOn": "docker-compose-up",
+      "dependsOn": "docker-compose-up",
       "command": "docker logs -f server_dev",
       "label": "server-log",
       // "runOptions": {
