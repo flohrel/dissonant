@@ -68,7 +68,7 @@ export class QueryAutocompleteInterceptor extends AutocompleteInterceptor {
         ? [
             {
               name: `Playlist ${res.playlist?.title} [${res.tracks.length} tracks]`,
-              value: 'playlist',
+              value: `${query}`,
             },
           ]
         : res.tracks
