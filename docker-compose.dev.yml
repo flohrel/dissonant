@@ -6,11 +6,11 @@ services:
       file: docker-compose.yml
       service: lavalink
     container_name: lavalink_dev
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./lavalink/application.yml
-          target: /opt/Lavalink/application.yml
+    # develop:
+    #   watch:
+    #     - action: sync+restart
+    #       path: ./lavalink/application.yml
+    #       target: /opt/Lavalink/application.yml
 
   server:
     extends:
@@ -20,6 +20,10 @@ services:
     build:
       target: dev
     secrets:
+      - source: discord_app_id
+        uid: '1000'
+        gid: '1000'
+        mode: 0440
       - source: discord_bot_token
         uid: '1000'
         gid: '1000'
@@ -51,6 +55,8 @@ services:
       - lavalink
 
 secrets:
+  discord_app_id:
+    environment: DISCORD_APP_ID
   discord_bot_token:
     environment: DISCORD_BOT_TOKEN
   discord_dev_guild_id:
