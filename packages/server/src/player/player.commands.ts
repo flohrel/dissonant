@@ -6,16 +6,16 @@ import {
   GuildMember,
   inlineCode,
   InteractionContextType,
-  italic,
+  MessageFlags,
   quote,
   subtext,
   VoiceChannel,
 } from 'discord.js';
 import { Context, Options, SlashCommand, SlashCommandContext } from 'necord';
 import { connected } from 'process';
-import { Duration } from '../utils/time';
+import { format_HHMMSS } from '../utils/time';
 import { PlayDto, SkipDto, StopDto } from './player.dto';
-import { SourceAutocompleteInterceptor } from './source.autocomplete';
+import { QueryAutocompleteInterceptor } from './query.interceptor';
 
 @Injectable()
 export class PlayerCommands {
@@ -24,7 +24,7 @@ export class PlayerCommands {
     private readonly lavalinkService: NecordLavalinkService,
   ) {}
 
-  @UseInterceptors(SourceAutocompleteInterceptor)
+  @UseInterceptors(QueryAutocompleteInterceptor)
   @SlashCommand({
     name: 'play',
     description: 'Play a track',
@@ -32,28 +32,28 @@ export class PlayerCommands {
   })
   public async onPlay(
     @Context() [interaction]: SlashCommandContext,
-    @Options() { query, source }: PlayDto,
+    @Options() { query }: PlayDto,
   ) {
     if (!interaction.guildId) return;
 
     const vcId = (interaction.member as GuildMember)?.voice?.channelId;
     if (!vcId)
       return interaction.reply({
-        ephemeral: true,
-        content: `You need to be in a voice channel`,
+        flags: MessageFlags.Ephemeral,
+        content: '⚠️ **You need to be in a voice channel** 🔊',
       });
     const vc = (interaction.member as GuildMember)?.voice
       ?.channel as VoiceChannel;
     if (!vc.joinable)
       return interaction.reply({
-        ephemeral: true,
-        content: "🔒 **I don't have permission to join your voice channel**",
+        flags: MessageFlags.Ephemeral,
+        content: "⚠️ **I don't have permission to join your voice channel** 🔒",
       });
     if (!vc.speakable)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content:
-          "🔒 **I don't have permission to speak in your voice channel**",
+          "⚠️ **I don't have permission to speak in your voice channel** 🔒",
       });
 
     const player =
@@ -65,17 +65,11 @@ export class PlayerCommands {
         volume: 100,
       });
 
-    player.connect();
+    if (!player.connected) await player.connect();
 
     await interaction.deferReply();
 
-    const response = await player.search(
-      {
-        query,
-        source: source ?? 'spsearch',
-      },
-      interaction.user.id,
-    );
+    const response = await player.search({ query }, interaction.user.id);
 
     if (response.loadType === 'empty')
       return interaction.editReply({
@@ -90,7 +84,7 @@ export class PlayerCommands {
 
     response.tracks.forEach((track) => {
       track.userData = {
-        requesterId: interaction.user.id,
+        id: interaction.user.id,
       };
     });
 
@@ -102,7 +96,7 @@ export class PlayerCommands {
     } else {
       player.queue.add(response.tracks[0]);
       await interaction.editReply({
-        content: `Track ${inlineCode(response.tracks[0].info.author + ' - ' + response.tracks[0].info.title)} added by ${interaction.user.displayName} to queue`,
+        content: `Track ${response.tracks[0].info.sourceName !== 'youtube' ? inlineCode(response.tracks[0].info.author + ' - ' + response.tracks[0].info.title) : inlineCode(response.tracks[0].info.title)} added by ${interaction.user.displayName} to queue`,
       });
     }
 
@@ -127,17 +121,17 @@ export class PlayerCommands {
 
     if (!player)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'No music is playing',
       });
     if (!vcId)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'Join a Voice Channel',
       });
     if (player.voiceChannelId !== vcId)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'You need to be in my Voice Channel',
       });
 
@@ -161,17 +155,17 @@ export class PlayerCommands {
 
     if (!player)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'No music is playing',
       });
     if (!vcId)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'Join a Voice Channel',
       });
     if (player.voiceChannelId !== vcId)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'You need to be in my Voice Channel',
       });
 
@@ -180,14 +174,14 @@ export class PlayerCommands {
 
     if (!nextTrack)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: `No Tracks to skip to`,
       });
 
     await player.skip(skipTo || 0);
 
     return interaction.reply({
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
       content: current
         ? `Skipped [\`${current?.info.title}\`](<${current?.info.uri}>) -> [\`${nextTrack?.info.title}\`](<${nextTrack?.info.uri}>)`
         : `Skipped to [\`${nextTrack?.info.title}\`](<${nextTrack?.info.uri}>)`,
@@ -206,20 +200,22 @@ export class PlayerCommands {
 
     if (!player)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'No music is playing',
       });
     if (!vcId)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'Join a Voice Channel',
       });
     if (player.voiceChannelId !== vcId)
       return interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: 'You need to be in my Voice Channel',
       });
 
+    const currentTrackInfo = player.queue.current?.info;
+    const trackList = player.queue.tracks;
     const embed = new EmbedBuilder();
 
     embed
@@ -227,60 +223,51 @@ export class PlayerCommands {
         name: '🔊 Now playing',
       })
       .setTitle(
-        (player.queue.current?.info.sourceName !== 'youtube'
-          ? player.queue.current?.info.author!.toUpperCase() + ' - '
-          : '') + player.queue.current?.info.title,
+        (currentTrackInfo?.sourceName !== 'youtube'
+          ? currentTrackInfo?.author?.toUpperCase() + ' - '
+          : '') + currentTrackInfo?.title,
       )
+      .setURL(currentTrackInfo?.uri || null)
+      .setThumbnail(currentTrackInfo?.artworkUrl || null)
       .setDescription(
-        subtext(
-          `${new Duration(player.queue.current?.info.duration).formatMMSS()}` +
-            ' | ' +
-            `requested by ${interaction.user.displayName}\n`,
-        ),
-      )
-      .setThumbnail(player.queue.current?.info.artworkUrl || null)
-      .setURL(player.queue.current?.info.uri || null)
-      .addFields(
-        player.queue.tracks.length === 0
-          ? { name: '\u200b', value: italic('No tracks in queue') }
-          : {
-              name: '\u200b\nQueue',
-              value:
-                player.queue.tracks
-                  .slice(0, player.queue.tracks.length > 5 ? 5 : undefined)
-                  .map((track, _index) => {
-                    return (
-                      `* [${track.info.title.length > 40 ? track.info.title.slice(0, 50) + '...' : track.info.title}](${track.info.uri})\n` +
-                      quote(
-                        subtext(
-                          `${new Duration(track?.info.duration).formatMMSS()} | requested by ${interaction.client.users.cache.get(track.userData?.requesterId as string)?.displayName}`,
-                        ),
-                      )
-                    );
-                  })
-                  .join('\n') +
-                (player.queue.tracks.length > 10
-                  ? '\n...\n\u200b'
-                  : '\n\u200b'),
-            },
+        `${format_HHMMSS(currentTrackInfo?.duration)} | requested by ${interaction.user.displayName}\n`,
       )
       .addFields(
-        player.queue.tracks.length !== 0
+        trackList.length !== 0
           ? [
+              {
+                name: '\u200b\nQueue',
+                value:
+                  trackList
+                    .slice(0, trackList.length > 5 ? 5 : undefined)
+                    .map((track, _index) => {
+                      const trackInfo = track.info;
+                      return (
+                        `* [${trackInfo.title.length > 40 ? trackInfo.title.slice(0, 50) + '...' : trackInfo.title}](${trackInfo.uri})\n` +
+                        quote(
+                          subtext(
+                            `${format_HHMMSS(trackInfo.duration)} | requested by ${interaction.client.users.cache.get(track.userData?.id as string)?.displayName}`,
+                          ),
+                        )
+                      );
+                    })
+                    .join('\n') +
+                  (trackList.length > 10 ? '\n...\n\u200b' : '\n\u200b'),
+              },
               {
                 name: 'Total duration',
                 value: blockQuote(
-                  new Duration(
-                    player.queue.tracks.reduce((acc, track) => {
+                  format_HHMMSS(
+                    trackList.reduce((acc, track) => {
                       return acc + (track.info.duration || 0);
-                    }, player.queue.current?.info.duration || 0),
-                  ).formatHHMMSS(),
+                    }, currentTrackInfo?.duration || 0),
+                  ),
                 ),
                 inline: true,
               },
               {
                 name: 'Track count',
-                value: blockQuote(`${player.queue.tracks.length}`),
+                value: blockQuote(`${trackList.length + 1}`),
                 inline: true,
               },
             ]

@@ -1,4 +1,3 @@
-import { SearchPlatform } from 'lavalink-client/dist/types';
 import { BooleanOption, IntegerOption, StringOption } from 'necord';
 
 export class PlayDto {
@@ -6,16 +5,9 @@ export class PlayDto {
     name: 'query',
     description: ' <name | url> of the requested track',
     required: true,
+    autocomplete: true,
   })
   public readonly query!: string;
-
-  @StringOption({
-    name: 'source',
-    description: 'source of the track',
-    autocomplete: true,
-    required: false,
-  })
-  public readonly source?: SearchPlatform;
 }
 
 export class StopDto {

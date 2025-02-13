@@ -1,7 +1,14 @@
 import { LavalinkManagerContextOf, OnLavalinkManager } from '@necord/lavalink';
 import { Injectable, Logger } from '@nestjs/common';
-import { ChannelManager, EmbedBuilder, UserManager } from 'discord.js';
+import {
+  ChannelManager,
+  EmbedBuilder,
+  quote,
+  subtext,
+  UserManager,
+} from 'discord.js';
 import { Context } from 'necord';
+import { format_HHMMSS } from '../utils/time';
 
 @Injectable()
 export class LavalinkEvent {
@@ -22,49 +29,48 @@ export class LavalinkEvent {
   public async onTrackStart(
     @Context() [player, track]: LavalinkManagerContextOf<'trackStart'>,
   ) {
-    this.logger.debug(`Track ${track?.info.identifier} started playing`);
+    const trackInfo = track?.info;
+    const nextTrackInfo =
+      player.queue.tracks.length > 0 ? player.queue.tracks[0].info : null;
+
+    this.logger.debug(`Track ${trackInfo?.identifier} started playing`);
 
     if (!player.textChannelId) return;
 
-    let embed = new EmbedBuilder();
+    const embed = new EmbedBuilder();
+
     embed
       .setAuthor({
-        name: '▶️ Now playing',
+        name: '🔊 Now playing',
       })
       .setTitle(
-        (track?.info.sourceName !== 'youtube'
-          ? track?.info.author!.toUpperCase() + ' - '
-          : '') + track?.info.title,
+        (trackInfo?.sourceName !== 'youtube'
+          ? trackInfo?.author.toUpperCase() + ' - '
+          : '') + trackInfo?.title,
       )
-      .setThumbnail(player.queue.current?.pluginInfo.albumArtUrl || null)
-      .setURL(player.queue.current?.info.uri || null)
-      // .addFields({
-      //   name: 'Requested by',
-      //   value:
-      //     '> ' +
-      //       this.users.cache.get(
-      //         player.queue.current?.userData?.requestedBy as string,
-      //       )?.displayName || 'unknown',
-      //   inline: true,
-      // })
-      // .addFields({
-      //   name: `Duration`,
-      //   value: `> ${new Duration(
-      //     player.queue.tracks.reduce((acc, track) => {
-      //       return acc + (track.info.duration || 0);
-      //     }, 0),
-      //   ).format()}`,
-      //   inline: true,
-      // })
-      // .addFields({
-      //   name: `Tracks`,
-      //   value: `> ${player.queue.tracks.length}`,
-      //   inline: true,
-      // });
-      // .setTimestamp()
-      .setFooter({
-        text: `requested by ${this.users.cache.get(track?.userData?.requesterId as string)?.username}`,
-      });
+      .setURL(trackInfo?.uri || track?.pluginInfo.uri || null)
+      .setThumbnail(
+        trackInfo?.artworkUrl || track?.pluginInfo.albumArtUrl || null,
+      )
+      .setDescription(
+        `${format_HHMMSS(trackInfo?.duration)} | requested by ${this.users.cache.get(track?.userData?.id as string)?.displayName}\n`,
+      )
+      .addFields(
+        nextTrackInfo
+          ? [
+              {
+                name: '\u200b\nNext',
+                value:
+                  `* [${nextTrackInfo.title.length > 40 ? nextTrackInfo.title.slice(0, 50) + '...' : nextTrackInfo.title}](${nextTrackInfo.uri})\n` +
+                  quote(
+                    subtext(
+                      `${format_HHMMSS(nextTrackInfo.duration)} | requested by ${this.users.cache.get(player.queue.tracks[0].userData?.id as string)?.displayName}`,
+                    ),
+                  ),
+              },
+            ]
+          : [],
+      );
     const channel = this.channels.cache.get(player.textChannelId);
     channel?.isSendable() && channel.send({ embeds: [await embed] });
   }

@@ -5,8 +5,8 @@ import { IntentsBitField } from 'discord.js';
 import * as Joi from 'joi';
 import { NecordModule } from 'necord';
 import { AppUpdate } from './app.service';
-import { PlayerModule } from './player/player.module';
 import { LavalinkEvent } from './event/lavalink.service';
+import { PlayerModule } from './player/player.module';
 
 @Module({
   imports: [
@@ -17,6 +17,7 @@ import { LavalinkEvent } from './event/lavalink.service';
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'test')
           .default('development'),
+        DISCORD_APP_ID: Joi.required(),
         DISCORD_BOT_TOKEN: Joi.required(),
         DISCORD_DEV_GUILD_ID: Joi.required(),
         LAVALINK_HOST: Joi.required(),
@@ -36,8 +37,6 @@ import { LavalinkEvent } from './event/lavalink.service';
         IntentsBitField.Flags.GuildMessages,
         IntentsBitField.Flags.GuildVoiceStates,
         IntentsBitField.Flags.MessageContent,
-        IntentsBitField.Flags.DirectMessages,
-        IntentsBitField.Flags.GuildMembers,
       ],
     }),
     NecordLavalinkModule.forRoot({
@@ -45,6 +44,7 @@ import { LavalinkEvent } from './event/lavalink.service';
         {
           host: process.env.LAVALINK_HOST!,
           port: Number(process.env.LAVALINK_PORT!),
+          id: 'test',
           authorization: process.env.LAVALINK_PASSWORD!,
           requestSignalTimeoutMS: 3000,
           closeOnError: true,
@@ -57,6 +57,10 @@ import { LavalinkEvent } from './event/lavalink.service';
       ],
       autoSkip: true,
       autoSkipOnResolveError: true,
+      client: {
+        id: process.env.DISCORD_APP_ID!,
+        username: 'Dissonant',
+      },
       emitNewSongsOnly: true,
       playerOptions: {
         maxErrorsPerTime: {
@@ -65,7 +69,7 @@ import { LavalinkEvent } from './event/lavalink.service';
         },
         minAutoPlayMs: 10_000,
         clientBasedPositionUpdateInterval: 50,
-        defaultSearchPlatform: 'ytmsearch',
+        defaultSearchPlatform: 'ytsearch',
         onDisconnect: {
           autoReconnect: true,
           destroyPlayer: false,

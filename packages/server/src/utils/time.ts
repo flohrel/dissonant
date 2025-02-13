@@ -1,31 +1,20 @@
-export class Duration {
-  hours: number = 0;
-  minutes: number = 0;
-  seconds: number = 0;
+/**
+ *
+ * @param duration - The duration in milliseconds
+ * @returns The formatted duration in HH:MM:SS format
+ */
+export function format_HHMMSS(duration?: number): string {
+  if (!duration) return '00:00';
 
-  constructor(private totalMs?: number) {
-    if (!this.totalMs) return;
-    const seconds = Math.floor(this.totalMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
+  let seconds = Math.floor(duration / 1000);
+  let minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
 
-    this.hours = hours;
-    this.minutes = minutes % 60;
-    this.seconds = seconds % 60;
-  }
+  minutes %= 60;
+  seconds %= 60;
 
-  formatHHMMSS(): string {
-    return (
-      (this.hours > 0 ? this.hours.toString().padStart(2, '0') + 'h ' : '') +
-      `${this.minutes.toString().padStart(2, '0')}m ${this.seconds.toString().padStart(2, '0')}s `
-    );
-  }
-
-  formatMMSS(): string {
-    return (
-      this.minutes.toString().padStart(2, '0') +
-      ':' +
-      this.seconds.toString().padStart(2, '0')
-    );
-  }
+  return (
+    (hours > 0 ? hours.toString().padStart(2, '0') + ':' : '') +
+    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  );
 }
