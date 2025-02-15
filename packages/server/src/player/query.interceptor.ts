@@ -1,12 +1,12 @@
-import { PlayerManager } from '@necord/lavalink';
 import { Injectable } from '@nestjs/common';
 import { AutocompleteInteraction, GuildMember, VoiceChannel } from 'discord.js';
 import { AutocompleteInterceptor } from 'necord';
 import { format_HHMMSS } from '../utils/time';
+import { PlayerService } from './player.service';
 
 @Injectable()
 export class QueryAutocompleteInterceptor extends AutocompleteInterceptor {
-  public constructor(private readonly playerManager: PlayerManager) {
+  public constructor(private readonly playerService: PlayerService) {
     super();
   }
 
@@ -42,46 +42,59 @@ export class QueryAutocompleteInterceptor extends AutocompleteInterceptor {
 
     if (!query.trim()) return;
 
-    const player =
-      this.playerManager.get(interaction.guildId) ??
-      this.playerManager.create({
-        guildId: interaction.guildId,
-        textChannelId: interaction.channelId,
-        voiceChannelId: vcId,
-        selfDeaf: true,
-        selfMute: false,
-        volume: 100,
-      });
+    const response = await this.playerService.search(interaction, query);
 
-    if (!player.connected) await player.connect();
-
-    const res = await player.search({ query }, interaction.user.id);
-
-    if (!res.tracks.length) {
-      return await interaction.respond([
-        { name: 'No Tracks found', value: 'nothing_found' },
-      ]);
-    }
-
-    await interaction.respond(
-      res.loadType === 'playlist'
-        ? [
-            {
-              name: `Playlist ${res.playlist?.title} [${res.tracks.length} tracks]`,
-              value: `${query}`,
-            },
-          ]
-        : res.tracks
-            .map((track, _index) => ({
+    switch (response.loadType) {
+      case 'empty':
+        return interaction.respond([
+          {
+            name: '⚠️ No tracks found',
+            value: JSON.stringify({ query, selectedIndex: undefined }),
+          },
+        ]);
+      case 'error':
+        return interaction.respond([
+          {
+            name: `⚠️ Failed to load: ${response.exception?.message}`,
+            value: JSON.stringify({ query, selectedIndex: undefined }),
+          },
+        ]);
+      case 'playlist':
+        return interaction.respond([
+          {
+            name: `Playlist ${response.playlist?.title} [${response.tracks.length} tracks]`,
+            value: JSON.stringify({ query, selectedIndex: undefined }),
+          },
+        ]);
+      case 'track':
+        const track = response.tracks[0];
+        return interaction.respond([
+          {
+            name:
+              (track?.info.sourceName !== 'youtube'
+                ? track.info.author?.toUpperCase() + ' - '
+                : '') +
+              track.info.title.substring(0, 80) +
+              ` | ${format_HHMMSS(track.info.duration)}`,
+            value: JSON.stringify({ query, selectedIndex: 0 }),
+          },
+        ]);
+      case 'search':
+        return interaction.respond(
+          response.tracks
+            .map((track, index) => ({
               name:
                 (track?.info.sourceName !== 'youtube'
                   ? track.info.author?.toUpperCase() + ' - '
                   : '') +
                 track.info.title.substring(0, 80) +
                 ` | ${format_HHMMSS(track.info.duration)}`,
-              value: `${track.info.isrc || track.info.uri}`,
+              value: JSON.stringify({ query, selectedIndex: index }),
             }))
             .slice(0, 5),
-    );
+        );
+      default:
+        return;
+    }
   }
 }

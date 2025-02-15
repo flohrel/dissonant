@@ -1,5 +1,9 @@
-import { BooleanOption, IntegerOption, StringOption } from 'necord';
+import { IntegerOption, StringOption } from 'necord';
 
+/**
+ * DTO for the play command
+ * @description The payload can be a serialized AutocompletePayload object if the user selected a track from the autocomplete menu
+ */
 export class PlayDto {
   @StringOption({
     name: 'query',
@@ -7,17 +11,17 @@ export class PlayDto {
     required: true,
     autocomplete: true,
   })
-  public readonly query!: string;
+  public readonly payload!: string;
 }
 
-export class StopDto {
-  @BooleanOption({
-    name: 'clear',
-    description: 'Should the queue be cleared? (default true)',
-    required: false,
-  })
-  public readonly clearQueue?: boolean;
-}
+// export class StopDto {
+//   @BooleanOption({
+//     name: 'clear',
+//     description: 'Should the queue be cleared? (default true)',
+//     required: false,
+//   })
+//   public readonly clearQueue?: boolean;
+// }
 
 export class SkipDto {
   @IntegerOption({
