@@ -44,7 +44,8 @@ import { PlayerModule } from './player/player.module';
         {
           host: process.env.LAVALINK_HOST!,
           port: Number(process.env.LAVALINK_PORT!),
-          id: 'test',
+          id: 'test_node',
+          sessionId: 'test_session',
           authorization: process.env.LAVALINK_PASSWORD!,
           requestSignalTimeoutMS: 3000,
           closeOnError: true,
@@ -68,10 +69,12 @@ import { PlayerModule } from './player/player.module';
           maxAmount: 3,
         },
         minAutoPlayMs: 10_000,
+        applyVolumeAsFilter: false,
         clientBasedPositionUpdateInterval: 50,
         defaultSearchPlatform: 'ytsearch',
         onDisconnect: {
           autoReconnect: true,
+          autoReconnectOnlyWithTracks: true,
           destroyPlayer: false,
         },
         onEmptyQueue: {
@@ -89,7 +92,7 @@ import { PlayerModule } from './player/player.module';
         enableDebugEvents: true,
         maxFilterFixDuration: 600_000,
         debugOptions: {
-          noAudio: false,
+          noAudio: true,
           playerDestroy: {
             dontThrowError: false,
             debugLog: false,
