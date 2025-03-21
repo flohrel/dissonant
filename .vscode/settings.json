@@ -31,7 +31,6 @@
     "typescriptreact",
     "astro"
   ],
-  "stylelint.validate": ["css", "less", "postcss", "scss"],
   //
   // ========== Language specific ==========
   //
@@ -43,8 +42,8 @@
     "editor.defaultFormatter": "vscode.html-language-features"
   },
   "[javascript][javascriptreact][typescript][typescriptreact]": {},
-  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.importModuleSpecifierEnding": "minimal",
   "typescript.preferences.includePackageJsonAutoImports": "on",
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
 }
