@@ -1,7 +1,8 @@
 import { NecordLavalinkModule } from '@necord/lavalink';
+import { NecordPaginationModule } from '@necord/pagination';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { IntentsBitField } from 'discord.js';
+import { IntentsBitField, Partials } from 'discord.js';
 import * as Joi from 'joi';
 import { NecordModule } from 'necord';
 import { AppUpdate } from './app.service';
@@ -31,13 +32,16 @@ import { PlayerModule } from './player/player.module';
     }),
     NecordModule.forRoot({
       token: process.env.DISCORD_BOT_TOKEN!,
-      development: [process.env.DISCORD_DEV_GUILD_ID!],
+      // development: [process.env.DISCORD_DEV_GUILD_ID!],
       intents: [
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMessages,
         IntentsBitField.Flags.GuildVoiceStates,
         IntentsBitField.Flags.MessageContent,
+        IntentsBitField.Flags.DirectMessages,
       ],
+      partials: [Partials.Message, Partials.Channel],
+      // skipRegistration: true,
     }),
     NecordLavalinkModule.forRoot({
       nodes: [
@@ -71,7 +75,7 @@ import { PlayerModule } from './player/player.module';
         minAutoPlayMs: 10_000,
         applyVolumeAsFilter: false,
         clientBasedPositionUpdateInterval: 50,
-        defaultSearchPlatform: 'ytsearch',
+        defaultSearchPlatform: 'spsearch',
         onDisconnect: {
           autoReconnect: true,
           autoReconnectOnlyWithTracks: true,
@@ -92,7 +96,7 @@ import { PlayerModule } from './player/player.module';
         enableDebugEvents: true,
         maxFilterFixDuration: 600_000,
         debugOptions: {
-          noAudio: true,
+          noAudio: false,
           playerDestroy: {
             dontThrowError: false,
             debugLog: false,
@@ -100,6 +104,12 @@ import { PlayerModule } from './player/player.module';
           logCustomSearches: false,
         },
       },
+    }),
+    NecordPaginationModule.forRoot({
+      buttons: {},
+      allowSkip: true,
+      allowTraversal: true,
+      buttonsPosition: 'end',
     }),
     PlayerModule,
   ],

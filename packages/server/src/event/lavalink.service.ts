@@ -1,21 +1,31 @@
+import { format_HHMMSS } from '@/common/utils/time';
 import { LavalinkManagerContextOf, OnLavalinkManager } from '@necord/lavalink';
 import { Injectable, Logger } from '@nestjs/common';
 import {
+  ActionRowBuilder,
+  bold,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelManager,
   EmbedBuilder,
-  quote,
+  heading,
+  HeadingLevel,
+  hyperlink,
+  inlineCode,
+  Message,
+  SendableChannels,
   subtext,
-  UserManager,
+  User,
+  userMention,
 } from 'discord.js';
+import { Track } from 'lavalink-client/dist/types';
 import { Context } from 'necord';
-import { format_HHMMSS } from '../utils/time';
 
 @Injectable()
 export class LavalinkEvent {
-  public constructor(
-    private readonly channels: ChannelManager,
-    private readonly users: UserManager,
-  ) {}
+  private playerMessage: Message;
+
+  public constructor(private readonly channels: ChannelManager) {}
   private readonly logger = new Logger(LavalinkEvent.name);
 
   @OnLavalinkManager('playerCreate')
@@ -29,49 +39,88 @@ export class LavalinkEvent {
   public async onTrackStart(
     @Context() [player, track]: LavalinkManagerContextOf<'trackStart'>,
   ) {
-    const trackInfo = track?.info;
-    const nextTrackInfo =
-      player.queue.tracks.length > 0 ? player.queue.tracks[0].info : null;
+    if (!player.textChannelId) {
+      this.logger.warn(`No text channel found for ${player.guildId}`);
+      return;
+    }
+    if (!track) {
+      this.logger.warn(`No track found for ${player.guildId}`);
+      return;
+    }
 
-    this.logger.debug(`Track ${trackInfo?.identifier} started playing`);
-
-    if (!player.textChannelId) return;
-
-    const embed = new EmbedBuilder();
-
-    embed
-      .setAuthor({
-        name: '🔊 Now playing',
-      })
-      .setTitle(
-        (trackInfo?.sourceName !== 'youtube'
-          ? trackInfo?.author.toUpperCase() + ' - '
-          : '') + trackInfo?.title,
-      )
-      .setURL(trackInfo?.uri || track?.pluginInfo.uri || null)
-      .setThumbnail(
-        trackInfo?.artworkUrl || track?.pluginInfo.albumArtUrl || null,
-      )
-      .setDescription(
-        `${format_HHMMSS(trackInfo?.duration)} | requested by ${this.users.cache.get(track?.userData?.id as string)?.displayName}\n`,
-      )
-      .addFields(
-        nextTrackInfo
-          ? [
-              {
-                name: '\u200b\nNext',
-                value:
-                  `* [${nextTrackInfo.title.length > 40 ? nextTrackInfo.title.slice(0, 50) + '...' : nextTrackInfo.title}](${nextTrackInfo.uri})\n` +
-                  quote(
-                    subtext(
-                      `${format_HHMMSS(nextTrackInfo.duration)} | requested by ${this.users.cache.get(player.queue.tracks[0].userData?.id as string)?.displayName}`,
-                    ),
-                  ),
-              },
-            ]
-          : [],
-      );
     const channel = this.channels.cache.get(player.textChannelId);
-    channel?.isSendable() && channel.send({ embeds: [await embed] });
+
+    if (!channel) {
+      this.logger.warn(`No channel found for ${player.guildId}`);
+      return;
+    }
+    if (!channel.isSendable()) {
+      this.logger.warn(`Channel not sendable for ${player.guildId}`);
+      return;
+    }
+    this.#sendPlayerComponent(channel, track);
+  }
+
+  async #sendPlayerComponent(
+    channel: SendableChannels,
+    track: Track,
+  ): Promise<void> {
+    const trackInfo = track.info;
+    const requester = track.requester as User;
+
+    const embed = new EmbedBuilder()
+      .setColor('DarkBlue')
+      .setAuthor({ name: '🔊 Now Playing' })
+      .setThumbnail(trackInfo.artworkUrl)
+      .setURL(trackInfo.uri)
+      .setDescription(
+        heading(
+          hyperlink(
+            (trackInfo.sourceName !== 'youtube'
+              ? trackInfo.author + ' — '
+              : '') + trackInfo.title,
+            trackInfo.uri,
+          ),
+          HeadingLevel.Three,
+        ) +
+          '\n' +
+          subtext(
+            bold(inlineCode(format_HHMMSS(trackInfo.duration))) +
+              ' • ' +
+              `requested by ${userMention(requester.id)}`,
+          ),
+      );
+
+    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId('previous')
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji('1340748540217004072'),
+      new ButtonBuilder()
+        .setCustomId('pause')
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji('1340748576510185644'),
+      new ButtonBuilder()
+        .setCustomId('skip')
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji('1340748562597679264'),
+      new ButtonBuilder()
+        .setCustomId('queue')
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji('1340748635998261318'),
+      new ButtonBuilder()
+        .setDisabled(true)
+        .setLabel('Dashboard')
+        .setStyle(ButtonStyle.Link)
+        .setURL('https://necord.js.org')
+        .setEmoji('1340748608609189929'),
+    );
+
+    await this.playerMessage?.delete();
+
+    this.playerMessage = await channel.send({
+      embeds: [await embed],
+      components: [buttonRow],
+    });
   }
 }

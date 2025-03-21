@@ -1,43 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { AutocompleteInteraction, GuildMember, VoiceChannel } from 'discord.js';
+import { AutocompleteInteraction } from 'discord.js';
 import { AutocompleteInterceptor } from 'necord';
-import { format_HHMMSS } from '../utils/time';
-import { PlayerService } from './player.service';
+
+import { format_HHMMSS } from '@/common/utils/time';
+import { PlayerService } from '@/player/player.service';
+
+export interface PlayAutocompletePayload {
+  query: string;
+  selectedIndex?: number;
+}
 
 @Injectable()
-export class QueryAutocompleteInterceptor extends AutocompleteInterceptor {
+export class PlayAutocomplete extends AutocompleteInterceptor {
   public constructor(private readonly playerService: PlayerService) {
     super();
   }
 
   public async transformOptions(interaction: AutocompleteInteraction) {
-    if (!interaction.guildId) return;
-
-    const vcId = (interaction.member as GuildMember)?.voice?.channelId;
-    if (!vcId)
-      return interaction.respond([
-        {
-          name: '❌ You need to be in a voice channel',
-          value: 'no_vc',
-        },
-      ]);
-    const vc = (interaction.member as GuildMember)?.voice
-      ?.channel as VoiceChannel;
-    if (!vc.joinable)
-      return interaction.respond([
-        {
-          name: "❌ I don't have permission to join your voice channel",
-          value: 'no_join_permission',
-        },
-      ]);
-    if (!vc.speakable)
-      return interaction.respond([
-        {
-          name: "❌ I don't have permission to speak in your voice channel",
-          value: 'no_speak_permission',
-        },
-      ]);
-
     const query = interaction.options.getFocused();
 
     if (!query.trim()) return;
@@ -72,10 +51,10 @@ export class QueryAutocompleteInterceptor extends AutocompleteInterceptor {
           {
             name:
               (track?.info.sourceName !== 'youtube'
-                ? track.info.author?.toUpperCase() + ' - '
+                ? track.info.author + ' — '
                 : '') +
               track.info.title.substring(0, 80) +
-              ` | ${format_HHMMSS(track.info.duration)}`,
+              ` • ${format_HHMMSS(track.info.duration)}`,
             value: JSON.stringify({ query, selectedIndex: 0 }),
           },
         ]);
@@ -85,13 +64,13 @@ export class QueryAutocompleteInterceptor extends AutocompleteInterceptor {
             .map((track, index) => ({
               name:
                 (track?.info.sourceName !== 'youtube'
-                  ? track.info.author?.toUpperCase() + ' - '
+                  ? track.info.author + ' — '
                   : '') +
                 track.info.title.substring(0, 80) +
-                ` | ${format_HHMMSS(track.info.duration)}`,
+                ` • ${format_HHMMSS(track.info.duration)}`,
               value: JSON.stringify({ query, selectedIndex: index }),
             }))
-            .slice(0, 5),
+            .slice(0, 10),
         );
       default:
         return;

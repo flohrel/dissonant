@@ -1,8 +1,10 @@
 import { NecordLavalinkService, PlayerManager } from '@necord/lavalink';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   AutocompleteInteraction,
+  ButtonInteraction,
   ChatInputCommandInteraction,
+  GuildMember,
 } from 'discord.js';
 import {
   Player,
@@ -15,7 +17,7 @@ import { delay } from 'lodash';
 
 @Injectable()
 export class PlayerService {
-  private readonly logger = new Logger(PlayerService.name);
+  // private readonly logger = new Logger(PlayerService.name);
   private readonly searchCache = new Map<
     string,
     Promise<SearchResult | UnresolvedSearchResult>
@@ -35,9 +37,12 @@ export class PlayerService {
     if (this.searchCache.has(query)) {
       return this.searchCache.get(query)!;
     } else {
-      const response = player.search({ query }, interaction.user.id);
+      const response = player.search(
+        { query, source: 'spsearch' },
+        interaction.user,
+      );
       this.searchCache.set(query, response);
-      delay(() => this.searchCache.delete(query), 60000);
+      delay(() => this.searchCache.delete(query), 60_000);
       return response;
     }
   }
@@ -47,12 +52,6 @@ export class PlayerService {
     interaction: ChatInputCommandInteraction | AutocompleteInteraction,
   ): Promise<void> {
     const player = this.getPlayer(interaction);
-
-    tracks.forEach((track) => {
-      track.userData = {
-        id: interaction.user.id,
-      };
-    });
 
     player.queue.add(tracks);
 
@@ -65,16 +64,33 @@ export class PlayerService {
   }
 
   public getPlayer(
-    interaction: ChatInputCommandInteraction | AutocompleteInteraction,
+    interaction:
+      | ChatInputCommandInteraction
+      | AutocompleteInteraction
+      | ButtonInteraction,
   ): Player {
-    const player =
-      this.playerManager.get(interaction.guildId!) ??
-      this.playerManager.create({
+    if (interaction.guildId === null) {
+      throw new Error('Cannot get player without a guild');
+    }
+
+    let player = this.playerManager.get(interaction.guildId);
+
+    if (!player) {
+      if (interaction instanceof ButtonInteraction) {
+        throw new Error('Cannot create player from button interaction');
+      }
+      if ((interaction.member as GuildMember).voice.channelId === null) {
+        throw new Error(
+          'Cannot create player without being in a voice channel',
+        );
+      }
+      player = this.playerManager.create({
         ...this.lavalinkService.extractInfoForPlayer(interaction),
         selfDeaf: true,
         selfMute: false,
         volume: 100,
       });
+    }
 
     return player;
   }
