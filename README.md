@@ -7,7 +7,7 @@
 
 ## 💡 About
 
-Dissonant is a music player Discord bot
+Dissonant is a music player Discord bot built on [Necord](https://github.com/necordjs/necord) and [Lavalink](https://github.com/lavalink-devs/Lavalink).
 
 ## 📋 Requirements
 
