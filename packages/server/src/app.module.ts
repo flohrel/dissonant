@@ -1,10 +1,12 @@
 import { NecordLavalinkModule } from '@necord/lavalink';
+import { NecordPaginationModule } from '@necord/pagination';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { IntentsBitField } from 'discord.js';
+import { IntentsBitField, Partials } from 'discord.js';
 import * as Joi from 'joi';
 import { NecordModule } from 'necord';
-import { AppUpdate } from './app.update';
+import { AppUpdate } from './app.service';
+import { LavalinkEvent } from './event/lavalink.service';
 import { PlayerModule } from './player/player.module';
 
 @Module({
@@ -16,6 +18,7 @@ import { PlayerModule } from './player/player.module';
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'test')
           .default('development'),
+        DISCORD_APP_ID: Joi.required(),
         DISCORD_BOT_TOKEN: Joi.required(),
         DISCORD_DEV_GUILD_ID: Joi.required(),
         LAVALINK_HOST: Joi.required(),
@@ -29,21 +32,24 @@ import { PlayerModule } from './player/player.module';
     }),
     NecordModule.forRoot({
       token: process.env.DISCORD_BOT_TOKEN!,
-      development: [process.env.DISCORD_DEV_GUILD_ID!],
+      // development: [process.env.DISCORD_DEV_GUILD_ID!],
       intents: [
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMessages,
         IntentsBitField.Flags.GuildVoiceStates,
         IntentsBitField.Flags.MessageContent,
         IntentsBitField.Flags.DirectMessages,
-        IntentsBitField.Flags.GuildMembers,
       ],
+      partials: [Partials.Message, Partials.Channel],
+      // skipRegistration: true,
     }),
     NecordLavalinkModule.forRoot({
       nodes: [
         {
           host: process.env.LAVALINK_HOST!,
           port: Number(process.env.LAVALINK_PORT!),
+          id: 'test_node',
+          sessionId: 'test_session',
           authorization: process.env.LAVALINK_PASSWORD!,
           requestSignalTimeoutMS: 3000,
           closeOnError: true,
@@ -56,6 +62,10 @@ import { PlayerModule } from './player/player.module';
       ],
       autoSkip: true,
       autoSkipOnResolveError: true,
+      client: {
+        id: process.env.DISCORD_APP_ID!,
+        username: 'Dissonant',
+      },
       emitNewSongsOnly: true,
       playerOptions: {
         maxErrorsPerTime: {
@@ -63,10 +73,12 @@ import { PlayerModule } from './player/player.module';
           maxAmount: 3,
         },
         minAutoPlayMs: 10_000,
+        applyVolumeAsFilter: false,
         clientBasedPositionUpdateInterval: 50,
-        defaultSearchPlatform: 'ytmsearch',
+        defaultSearchPlatform: 'spsearch',
         onDisconnect: {
           autoReconnect: true,
+          autoReconnectOnlyWithTracks: true,
           destroyPlayer: false,
         },
         onEmptyQueue: {
@@ -93,8 +105,14 @@ import { PlayerModule } from './player/player.module';
         },
       },
     }),
+    NecordPaginationModule.forRoot({
+      buttons: {},
+      allowSkip: true,
+      allowTraversal: true,
+      buttonsPosition: 'end',
+    }),
     PlayerModule,
   ],
-  providers: [AppUpdate],
+  providers: [AppUpdate, LavalinkEvent],
 })
 export class AppModule {}

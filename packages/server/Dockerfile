@@ -1,6 +1,7 @@
 FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+RUN npm i -g corepack@latest
 RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 RUN apk add --no-cache dumb-init libc6-compat
@@ -11,7 +12,7 @@ COPY --chown=node:node . /app
 FROM base AS dev
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "sh", "-c", "export DISCORD_BOT_TOKEN=`cat /run/secrets/discord_bot_token` DISCORD_DEV_GUILD_ID=`cat /run/secrets/discord_dev_guild_id` LAVALINK_HOST=`cat /run/secrets/lavalink_host` LAVALINK_PORT=`cat /run/secrets/lavalink_port` LAVALINK_PASSWORD=`cat /run/secrets/lavalink_password` ; pnpm start:dev" ]
+CMD [ "sh", "-c", "export DISCORD_APP_ID=`cat /run/secrets/discord_app_id` DISCORD_BOT_TOKEN=`cat /run/secrets/discord_bot_token` DISCORD_DEV_GUILD_ID=`cat /run/secrets/discord_dev_guild_id` LAVALINK_HOST=`cat /run/secrets/lavalink_host` LAVALINK_PORT=`cat /run/secrets/lavalink_port` LAVALINK_PASSWORD=`cat /run/secrets/lavalink_password` ; pnpm start:dev" ]
 
 FROM base AS prod-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
