@@ -1,0 +1,206 @@
+diff --git a/dist/necord-lavalink.service.d.ts b/dist/necord-lavalink.service.d.ts
+index 478bc9acff19896cb605d2f102fce1dd2203116b..63e9970ab57369a8753cbb42a9b64eb35da4cda3 100644
+--- a/dist/necord-lavalink.service.d.ts
++++ b/dist/necord-lavalink.service.d.ts
+@@ -1,18 +1,25 @@
+-import { ChatInputCommandInteraction, Client, Message, TextChannel, VoiceChannel } from 'discord.js';
++import {
++  AutocompleteInteraction,
++  ChatInputCommandInteraction,
++  Client,
++  Message,
++  TextChannel,
++  VoiceChannel
++} from 'discord.js';
+ import { LavalinkManager, Player } from 'lavalink-client';
+ export declare class NecordLavalinkService {
+-    private readonly lavalinkManager;
+-    private readonly client;
+-    constructor(lavalinkManager: LavalinkManager, client: Client);
+-    lavalinkUtils: import("lavalink-client").ManagerUtils;
+-    extractInfoForPlayer(base: Message | ChatInputCommandInteraction): {
+-        guildId: string;
+-        voiceChannelId: string;
+-        textChannelId: string;
+-    };
+-    extractPlayerData(player: Player): Promise<{
+-        guild: import("discord.js").Guild;
+-        voiceChannel: VoiceChannel;
+-        textChannel: TextChannel;
+-    }>;
++  private readonly lavalinkManager;
++  private readonly client;
++  constructor(lavalinkManager: LavalinkManager, client: Client);
++  lavalinkUtils: import('lavalink-client').ManagerUtils;
++  extractInfoForPlayer(base: Message | ChatInputCommandInteraction | AutocompleteInteraction): {
++    guildId: string;
++    voiceChannelId: string;
++    textChannelId: string;
++  };
++  extractPlayerData(player: Player): Promise<{
++    guild: import('discord.js').Guild;
++    voiceChannel: VoiceChannel;
++    textChannel: TextChannel;
++  }>;
+ }
+diff --git a/dist/necord-lavalink.service.js b/dist/necord-lavalink.service.js
+index f023dbdec410ce2951b671a2fbc85c4f57eef878..02b5079bf312688358d25e03f1e1ced122d4c9ec 100644
+--- a/dist/necord-lavalink.service.js
++++ b/dist/necord-lavalink.service.js
+@@ -1,59 +1,106 @@
+-"use strict";
+-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
++'use strict';
++var __decorate =
++  (this && this.__decorate) ||
++  function (decorators, target, key, desc) {
++    var c = arguments.length,
++      r =
++        c < 3
++          ? target
++          : desc === null
++            ? (desc = Object.getOwnPropertyDescriptor(target, key))
++            : desc,
++      d;
++    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function')
++      r = Reflect.decorate(decorators, target, key, desc);
++    else
++      for (var i = decorators.length - 1; i >= 0; i--)
++        if ((d = decorators[i]))
++          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+     return c > 3 && r && Object.defineProperty(target, key, r), r;
+-};
+-var __metadata = (this && this.__metadata) || function (k, v) {
+-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+-};
+-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
++  };
++var __metadata =
++  (this && this.__metadata) ||
++  function (k, v) {
++    if (typeof Reflect === 'object' && typeof Reflect.metadata === 'function')
++      return Reflect.metadata(k, v);
++  };
++var __awaiter =
++  (this && this.__awaiter) ||
++  function (thisArg, _arguments, P, generator) {
++    function adopt(value) {
++      return value instanceof P
++        ? value
++        : new P(function (resolve) {
++            resolve(value);
++          });
++    }
+     return new (P || (P = Promise))(function (resolve, reject) {
+-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+-        step((generator = generator.apply(thisArg, _arguments || [])).next());
++      function fulfilled(value) {
++        try {
++          step(generator.next(value));
++        } catch (e) {
++          reject(e);
++        }
++      }
++      function rejected(value) {
++        try {
++          step(generator['throw'](value));
++        } catch (e) {
++          reject(e);
++        }
++      }
++      function step(result) {
++        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
++      }
++      step((generator = generator.apply(thisArg, _arguments || [])).next());
+     });
+-};
+-Object.defineProperty(exports, "__esModule", { value: true });
++  };
++Object.defineProperty(exports, '__esModule', { value: true });
+ exports.NecordLavalinkService = void 0;
+-const common_1 = require("@nestjs/common");
+-const discord_js_1 = require("discord.js");
+-const lavalink_client_1 = require("lavalink-client");
++const common_1 = require('@nestjs/common');
++const discord_js_1 = require('discord.js');
++const lavalink_client_1 = require('lavalink-client');
+ let NecordLavalinkService = class NecordLavalinkService {
+-    constructor(lavalinkManager, client) {
+-        this.lavalinkManager = lavalinkManager;
+-        this.client = client;
+-        this.lavalinkUtils = this.lavalinkManager.utils;
+-    }
+-    extractInfoForPlayer(base) {
+-        var _a, _b, _c, _d;
+-        const guildId = base.guildId;
+-        const textChannelId = base.channelId;
+-        let voiceChannelId = null;
+-        if (base instanceof discord_js_1.Message) {
+-            voiceChannelId = (_b = (_a = base.member) === null || _a === void 0 ? void 0 : _a.voice.channelId) !== null && _b !== void 0 ? _b : null;
+-        }
+-        else if (base instanceof discord_js_1.ChatInputCommandInteraction) {
+-            voiceChannelId = (_d = (_c = base.member) === null || _c === void 0 ? void 0 : _c.voice.channelId) !== null && _d !== void 0 ? _d : null;
+-        }
+-        return { guildId, voiceChannelId, textChannelId };
+-    }
+-    extractPlayerData(player) {
+-        return __awaiter(this, void 0, void 0, function* () {
+-            return {
+-                guild: yield this.client.guilds.fetch(player.guildId),
+-                voiceChannel: (yield this.client.channels.fetch(player.voiceChannelId)),
+-                textChannel: (yield this.client.channels.fetch(player.textChannelId))
+-            };
+-        });
++  constructor(lavalinkManager, client) {
++    this.lavalinkManager = lavalinkManager;
++    this.client = client;
++    this.lavalinkUtils = this.lavalinkManager.utils;
++  }
++  extractInfoForPlayer(base) {
++    var _a, _b, _c, _d;
++    const guildId = base.guildId;
++    const textChannelId = base.channelId;
++    let voiceChannelId = null;
++    if (base instanceof discord_js_1.Message) {
++      voiceChannelId =
++        (_b = (_a = base.member) === null || _a === void 0 ? void 0 : _a.voice.channelId) !==
++          null && _b !== void 0
++          ? _b
++          : null;
++    } else if (base instanceof discord_js_1.BaseInteraction) {
++      voiceChannelId =
++        (_d = (_c = base.member) === null || _c === void 0 ? void 0 : _c.voice.channelId) !==
++          null && _d !== void 0
++          ? _d
++          : null;
+     }
++    return { guildId, voiceChannelId, textChannelId };
++  }
++  extractPlayerData(player) {
++    return __awaiter(this, void 0, void 0, function* () {
++      return {
++        guild: yield this.client.guilds.fetch(player.guildId),
++        voiceChannel: yield this.client.channels.fetch(player.voiceChannelId),
++        textChannel: yield this.client.channels.fetch(player.textChannelId)
++      };
++    });
++  }
+ };
+ exports.NecordLavalinkService = NecordLavalinkService;
+-exports.NecordLavalinkService = NecordLavalinkService = __decorate([
++exports.NecordLavalinkService = NecordLavalinkService = __decorate(
++  [
+     (0, common_1.Injectable)(),
+-    __metadata("design:paramtypes", [lavalink_client_1.LavalinkManager,
+-        discord_js_1.Client])
+-], NecordLavalinkService);
++    __metadata('design:paramtypes', [lavalink_client_1.LavalinkManager, discord_js_1.Client])
++  ],
++  NecordLavalinkService
++);
