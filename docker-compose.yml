@@ -10,7 +10,7 @@ services:
       - default
     restart: unless-stopped
     environment:
-      - _JAVA_OPTIONS=-Xmx1G
+      - _JAVA_OPTIONS=-Xmx4G
     volumes:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - ./lavalink/plugins/:/opt/Lavalink/plugins/
