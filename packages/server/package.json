@@ -24,6 +24,7 @@
   "dependencies": {
     "@discordjs/voice": "^0.18.0",
     "@necord/lavalink": "^1.1.4",
+    "@necord/pagination": "^2.0.2",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.0.9",
     "@nestjs/config": "^4.0.0",
